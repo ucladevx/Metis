@@ -8,6 +8,15 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 app.use(cors());
 
+// api routes
+app.use('/api', require('./api/get'));
+
+// routes to post data
+app.use('/post', require('./api/post'));
+
+// routes to scrape and update db
+app.use('/scrape', require('./api/scrape'));
+
 app.get('/', (req,res) => {
   res.send("Welcome to BH Backend")
 })
