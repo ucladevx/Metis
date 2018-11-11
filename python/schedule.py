@@ -53,7 +53,21 @@ def sendKeys(value, field, driver):
     except WebDriverException:
         print(field.get_attribute('Name'))
 
+# return HTML 
+def getHTML(element, attributes):
+	global driver
 
+	# Get the current page's HTML
+	page_response = requests.get(driver.current_url, timeout=5)
+
+	# Get Lower Div Courses
+	# Create a soup
+	soup = BeautifulSoup(page_response.content, "html.parser")
+	data = soup.find(element, attributes)
+	print("********************")
+	# TODO: parse this
+	print(data.findChildren())
+	print("********************")
 
 # Store the driver as a global
 driver = ""
@@ -110,25 +124,67 @@ def sched_scrape():
 		# TODO: there may be multiple pages of classes, need to go through each one
 
 
+# TODO: parse HTML that is output
 def descriptions_scrape():
 	global driver
 
-	url = "https://www.registrar.ucla.edu/Academics/Course-Descriptions"
-	driver.get(url)
+	# TODO: get all major names in a file and read from that
+	# majors = ["Aerospace Studies", "African American Studies", "African Studies"]
+	majors = ["Aerospace Studies", "African American Studies"]
+
+
+	for major in majors:
+		url = "https://www.registrar.ucla.edu/Academics/Course-Descriptions"
+		driver.get(url)
+
+		# click on dropdown input
+		className = driver.find_elements_by_xpath("//*[contains(text(), '" + major + "')]")
+		time.sleep(1)
+		print(className)
+		driver.execute_script("arguments[0].click();", className[0])
+		time.sleep(1)
+
+		# Get the current page's HTML
+		page_response = requests.get(driver.current_url, timeout=5)
+
+		
+		# Create a soup
+		soup = BeautifulSoup(page_response.content, "html.parser")
+		classes = soup.find("ul", {"class": "media-list category-list"})
+		print("********************")
+		# TODO: parse this
+		print(classes.findChildren())
+		print("********************")
+
+		# Get the default course set (usually Lower Divs come up first)
+		getHTML("ul", {"class": "media-list category-list"})
+
+		# Get Upper Div Courses
+		upperDivButton = driver.find_elements_by_xpath("//*[contains(text(), '" + "Upper Division Courses" + "')]")
+		if len(upperDivButton) != 0:
+			driver.execute_script("arguments[0].click();", upperDivButton[0])
+			getHTML("div", {"class": "tab-content"})
+
+
+		# Get Graduate Courses
+		upperDivButton = driver.find_elements_by_xpath("//*[contains(text(), '" + "Graduate Courses" + "')]")
+		if len(upperDivButton) != 0:
+			driver.execute_script("arguments[0].click();", upperDivButton[0])
+			getHTML("div", {"class": "tab-content"})
 
 
 # start the driver and return it
 def setup_driver():
-    chrome_options = webdriver.ChromeOptions()
-    # chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--start-maximized")
-    prefs = {"profile.default_content_setting_values.notifications" : 2}
-    chrome_options.add_experimental_option("prefs",prefs)
+	chrome_options = webdriver.ChromeOptions()
+	# chrome_options.add_argument("--headless")
+	chrome_options.add_argument("--start-maximized")
+	prefs = {"profile.default_content_setting_values.notifications" : 2}
+	chrome_options.add_experimental_option("prefs",prefs)
 
-    print("Starting driver")
-    driver = webdriver.Chrome(executable_path = './chromedriver', chrome_options=chrome_options)
+	print("Starting driver")
+	driver = webdriver.Chrome(executable_path = './chromedriver', chrome_options=chrome_options)
 
-    return driver
+	return driver
 
 def main():
 
@@ -137,7 +193,10 @@ def main():
 	driver = setup_driver()
 
 	# Scrape the schedule of classes
-	sched_scrape()
+	# sched_scrape()
+
+	# Scrape Class Descriptions
+	descriptions_scrape()
 
 	# Scrape course descriptions
 	# descriptions_scrape()
@@ -147,4 +206,4 @@ def main():
 	# driver.close()
 
 if __name__ == '__main__':
-    main()
+	main()
