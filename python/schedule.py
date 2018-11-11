@@ -144,18 +144,6 @@ def descriptions_scrape():
 		driver.execute_script("arguments[0].click();", className[0])
 		time.sleep(1)
 
-		# Get the current page's HTML
-		page_response = requests.get(driver.current_url, timeout=5)
-
-		
-		# Create a soup
-		soup = BeautifulSoup(page_response.content, "html.parser")
-		classes = soup.find("ul", {"class": "media-list category-list"})
-		print("********************")
-		# TODO: parse this
-		print(classes.findChildren())
-		print("********************")
-
 		# Get the default course set (usually Lower Divs come up first)
 		getHTML("ul", {"class": "media-list category-list"})
 
