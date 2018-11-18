@@ -53,7 +53,7 @@ def sendKeys(value, field, driver):
     except WebDriverException:
         print(field.get_attribute('Name'))
 
-# return HTML 
+# return HTML from a parent tag
 def getHTML(element, attributes):
 	global driver
 
@@ -107,6 +107,18 @@ def sched_scrape():
 		go.click()
 		time.sleep(1)
 
+		try:
+			numbers = check_exists_by_xpath("""//*[@class="jPag-pages"]""", driver)
+			
+			if len(numbers) != 0:
+				print("###")
+				print(numbers)
+				for number in numbers:
+					driver.execute_script("arguments[0].click();", number)
+
+		except:
+			print("hi")
+
 		# Click on the "expand all" button to see section information
 		expand_classes = check_exists_by_xpath("""//*[@id="divExpandAll"]""", driver)
 		time.sleep(1)
@@ -153,7 +165,6 @@ def descriptions_scrape():
 			driver.execute_script("arguments[0].click();", upperDivButton[0])
 			getHTML("div", {"class": "tab-content"})
 
-
 		# Get Graduate Courses
 		upperDivButton = driver.find_elements_by_xpath("//*[contains(text(), '" + "Graduate Courses" + "')]")
 		if len(upperDivButton) != 0:
@@ -181,10 +192,10 @@ def main():
 	driver = setup_driver()
 
 	# Scrape the schedule of classes
-	# sched_scrape()
+	sched_scrape()
 
 	# Scrape Class Descriptions
-	descriptions_scrape()
+	# descriptions_scrape()
 
 	# Scrape course descriptions
 	# descriptions_scrape()
