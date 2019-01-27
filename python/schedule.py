@@ -64,10 +64,15 @@ def getHTML(element, attributes):
 	# Create a soup
 	soup = BeautifulSoup(page_response.content, "html.parser")
 	data = soup.find(element, attributes)
-	print("********************")
+	# print("********************")
 	# TODO: parse this
-	print(data.findChildren())
-	print("********************")
+	# print(data.findChildren())
+	# print("********************")
+	return data.findChildren()
+
+# def parseHTML(content):
+# 	soup = BeautifulSoup(content, "html.parser")
+# 	print(soup.title)
 
 # Store the driver as a global
 driver = ""
@@ -129,7 +134,8 @@ def sched_scrape():
 		# Create a soup
 		soup = BeautifulSoup(page_response.content, "html.parser")
 		classes = soup.find(id="divSearchResults")
-		print(classes.findChildren())
+		# print(classes.findChildren())
+		print(soup.find_all('h3'))
 
 		# TODO: extract info from the soup, info may not be accessible because of js
 
@@ -164,6 +170,7 @@ def descriptions_scrape():
 		if len(upperDivButton) != 0:
 			driver.execute_script("arguments[0].click();", upperDivButton[0])
 			getHTML("div", {"class": "tab-content"})
+			# parseHTML(getHTML("div", {"class": "tab-content"}))
 
 		# Get Graduate Courses
 		upperDivButton = driver.find_elements_by_xpath("//*[contains(text(), '" + "Graduate Courses" + "')]")
