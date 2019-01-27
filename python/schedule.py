@@ -125,7 +125,10 @@ def sched_scrape():
 			print("hi")
 
 		# Click on the "expand all" button to see section information
-		expand_classes = check_exists_by_xpath("""//*[@id="divExpandAll"]""", driver)
+		expand_classes = check_exists_by_xpath("""//*[@id="expandAll"]""", driver)
+		time.sleep(1)
+		driver.execute_script("arguments[0].click();", expand_classes)
+
 		time.sleep(1)
 
 		# Get the current page's HTML
