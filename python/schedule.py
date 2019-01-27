@@ -184,14 +184,14 @@ def setup_driver():
 
 	print("Starting driver")
 
-    if platform == "linux" or platform == "linux2":
-        print("Don't have linux chrome driver")
-        return
+	if platform == "linux" or platform == "linux2":
+		print("Don't have linux chrome driver")
+		return
 
-    if platform == "darwin":  # OS X
-        driver = webdriver.Chrome(executable_path = './chromedriver', chrome_options=chrome_options)
-    elif platform == "win32":   # Windows...
-        driver = webdriver.Chrome(executable_path = './chromedriver.exe', chrome_options=chrome_options)
+	if platform == "darwin":  # OS X
+		driver = webdriver.Chrome(executable_path = './chromedriver', chrome_options=chrome_options)
+	elif platform == "win32":   # Windows...
+		driver = webdriver.Chrome(executable_path = './chromedriver.exe', chrome_options=chrome_options)
 
 	return driver
 
