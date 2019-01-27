@@ -26,6 +26,8 @@ import openpyxl
 from bs4 import BeautifulSoup
 import requests
 
+from sys import platform
+
 # ********************************************************************************
 # Chrome Driver Helpers
 
@@ -109,7 +111,7 @@ def sched_scrape():
 
 		try:
 			numbers = check_exists_by_xpath("""//*[@class="jPag-pages"]""", driver)
-			
+
 			if len(numbers) != 0:
 				print("###")
 				print(numbers)
@@ -181,7 +183,15 @@ def setup_driver():
 	chrome_options.add_experimental_option("prefs",prefs)
 
 	print("Starting driver")
-	driver = webdriver.Chrome(executable_path = './chromedriver', chrome_options=chrome_options)
+
+    if platform == "linux" or platform == "linux2":
+        print("Don't have linux chrome driver")
+        return
+
+    if platform == "darwin":  # OS X
+        driver = webdriver.Chrome(executable_path = './chromedriver', chrome_options=chrome_options)
+    elif platform == "win32":   # Windows...
+        driver = webdriver.Chrome(executable_path = './chromedriver.exe', chrome_options=chrome_options)
 
 	return driver
 
@@ -195,10 +205,10 @@ def main():
 	sched_scrape()
 
 	# Scrape Class Descriptions
-	# descriptions_scrape()
+	descriptions_scrape()
 
 	# Scrape course descriptions
-	# descriptions_scrape()
+	descriptions_scrape()
 
 	time.sleep(10)
 
