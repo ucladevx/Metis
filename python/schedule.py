@@ -80,6 +80,8 @@ driver = ""
 def sched_scrape():
 	global driver
 
+	majorClasses = {}
+
 	majors = ["African Studies", "African American Studies"]
 
 	for major in majors:
@@ -138,11 +140,18 @@ def sched_scrape():
 		soup = BeautifulSoup(page_response.content, "html.parser")
 		classes = soup.find(id="divSearchResults")
 		# print(classes.findChildren())
-		print(soup.find_all('h3'))
 
 		# TODO: extract info from the soup, info may not be accessible because of js
 
+		classList = []
+		for className in soup.find_all('h3'):
+			classList.append(className.string)
+
+		majorClasses[major] = classList
+
 		# TODO: there may be multiple pages of classes, need to go through each one
+
+	print(majorClasses)
 
 
 # TODO: parse HTML that is output
