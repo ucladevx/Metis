@@ -27,6 +27,7 @@ from bs4 import BeautifulSoup
 import requests
 
 from sys import platform
+from CCLE_professor_parser import CCLEHTMLParser
 
 # ********************************************************************************
 # Chrome Driver Helpers
@@ -57,132 +58,149 @@ def sendKeys(value, field, driver):
 
 # return HTML from a parent tag
 def getHTML(element, attributes):
-	global driver
+    global driver
 
-	# Get the current page's HTML
-	page_response = requests.get(driver.current_url, timeout=5)
+    # Get the current page's HTML
+    page_response = requests.get(driver.current_url, timeout=5)
 
-	# Get Lower Div Courses
-	# Create a soup
-	soup = BeautifulSoup(page_response.content, "html.parser")
-	data = soup.find(element, attributes)
-	print("********************")
-	# TODO: parse this
-	print(data.findChildren())
-	print("********************")
+    # Get Lower Div Courses
+    # Create a soup
+    soup = BeautifulSoup(page_response.content, "html.parser")
+    data = soup.find(element, attributes)
+    print("********************")
+    # TODO: parse this
+    print(data.findChildren())
+    print("********************")
 
 # Store the driver as a global
 driver = ""
 
 def sched_scrape():
-	global driver
+    global driver
 
-	majors = ["African Studies", "African American Studies"]
+    majors = ["African Studies", "African American Studies"]
 
-	for major in majors:
+    for major in majors:
 
-		# Go to schedule of classes page
-		url = "https://sa.ucla.edu/ro/public/soc"
-		driver.get(url)
+        # Go to schedule of classes page
+        url = "https://sa.ucla.edu/ro/public/soc"
+        driver.get(url)
 
-		# click on dropdown input
-		subject_area_input = check_exists_by_xpath("""//*[@id="select_filter_subject"]""", driver)
-		time.sleep(1)
-		subject_area_input.click()
-		time.sleep(1)
+        # click on dropdown input
+        subject_area_input = check_exists_by_xpath("""//*[@id="select_filter_subject"]""", driver)
+        time.sleep(1)
+        subject_area_input.click()
+        time.sleep(1)
 
-		print("Clicked input")
+        print("Clicked input")
 
-		# TODO: do majors have to be visible? try typing the majors instead of clicking?
-		# select the major
-		class_dropdown = check_exists_by_xpath("""//*[@id="select_filter_subject"]""", driver)
-		class_dropdown.click()
-		state = driver.find_elements_by_xpath("//*[contains(text(), '" + major + "')]")
-		# Select the major from the dropdown
-		for s in state:						# only one of the returned elements is clickable, not sure which one
-			driver.execute_script("arguments[0].click()", s)
-		driver.execute_script("arguments[0].click();", state[1])
+        # TODO: do majors have to be visible? try typing the majors instead of clicking?
+        # select the major
+        class_dropdown = check_exists_by_xpath("""//*[@id="select_filter_subject"]""", driver)
+        class_dropdown.click()
+        state = driver.find_elements_by_xpath("//*[contains(text(), '" + major + "')]")
+        # Select the major from the dropdown
+        for s in state:                        # only one of the returned elements is clickable, not sure which one
+            driver.execute_script("arguments[0].click()", s)
+        driver.execute_script("arguments[0].click();", state[1])
 
-		# Click the go button
-		go = check_exists_by_xpath("""//*[@id="btn_go"]""", driver)
-		time.sleep(1)
-		go.click()
-		time.sleep(1)
+        # Click the go button
+        go = check_exists_by_xpath("""//*[@id="btn_go"]""", driver)
+        time.sleep(1)
+        go.click()
+        time.sleep(1)
 
-		try:
-			numbers = check_exists_by_xpath("""//*[@class="jPag-pages"]""", driver)
+        try:
+            numbers = check_exists_by_xpath("""//*[@class="jPag-pages"]""", driver)
 
-			if len(numbers) != 0:
-				print("###")
-				print(numbers)
-				for number in numbers:
-					driver.execute_script("arguments[0].click();", number)
+            if len(numbers) != 0:
+                print("###")
+                print(numbers)
+                for number in numbers:
+                    driver.execute_script("arguments[0].click();", number)
 
-		except:
-			print("hi")
+        except:
+            print("hi")
 
-		# Click on the "expand all" button to see section information
-		expand_classes = check_exists_by_xpath("""//*[@id="divExpandAll"]""", driver)
-		time.sleep(1)
+        # Click on the "expand all" button to see section information
+        expand_classes = check_exists_by_xpath("""//*[@id="divExpandAll"]""", driver)
+        time.sleep(1)
 
-		# Get the current page's HTML
-		page_response = requests.get(driver.current_url, timeout=5)
+        # Get the current page's HTML
+        page_response = requests.get(driver.current_url, timeout=5)
 
-		# Create a soup
-		soup = BeautifulSoup(page_response.content, "html.parser")
-		classes = soup.find(id="divSearchResults")
-		print(classes.findChildren())
+        # Create a soup
+        soup = BeautifulSoup(page_response.content, "html.parser")
+        classes = soup.find(id="divSearchResults")
+        print(classes.findChildren())
 
-		# TODO: extract info from the soup, info may not be accessible because of js
+        # TODO: extract info from the soup, info may not be accessible because of js
 
-		# TODO: there may be multiple pages of classes, need to go through each one
+        # TODO: there may be multiple pages of classes, need to go through each one
 
 
 # TODO: parse HTML that is output
 def descriptions_scrape():
-	global driver
+    global driver
 
-	# TODO: get all major names in a file and read from that
-	# majors = ["Aerospace Studies", "African American Studies", "African Studies"]
-	majors = ["Aerospace Studies", "African American Studies"]
+    # TODO: get all major names in a file and read from that
+    # majors = ["Aerospace Studies", "African American Studies", "African Studies"]
+    majors = ["Aerospace Studies", "African American Studies"]
 
 
-	for major in majors:
-		url = "https://www.registrar.ucla.edu/Academics/Course-Descriptions"
-		driver.get(url)
+    for major in majors:
+        url = "https://www.registrar.ucla.edu/Academics/Course-Descriptions"
+        driver.get(url)
 
-		# click on dropdown input
-		className = driver.find_elements_by_xpath("//*[contains(text(), '" + major + "')]")
-		time.sleep(1)
-		print(className)
-		driver.execute_script("arguments[0].click();", className[0])
-		time.sleep(1)
+        # click on dropdown input
+        className = driver.find_elements_by_xpath("//*[contains(text(), '" + major + "')]")
+        time.sleep(1)
+        print(className)
+        driver.execute_script("arguments[0].click();", className[0])
+        time.sleep(1)
 
-		# Get the default course set (usually Lower Divs come up first)
-		getHTML("ul", {"class": "media-list category-list"})
+        # Get the default course set (usually Lower Divs come up first)
+        getHTML("ul", {"class": "media-list category-list"})
 
-		# Get Upper Div Courses
-		upperDivButton = driver.find_elements_by_xpath("//*[contains(text(), '" + "Upper Division Courses" + "')]")
-		if len(upperDivButton) != 0:
-			driver.execute_script("arguments[0].click();", upperDivButton[0])
-			getHTML("div", {"class": "tab-content"})
+        # Get Upper Div Courses
+        upperDivButton = driver.find_elements_by_xpath("//*[contains(text(), '" + "Upper Division Courses" + "')]")
+        if len(upperDivButton) != 0:
+            driver.execute_script("arguments[0].click();", upperDivButton[0])
+            getHTML("div", {"class": "tab-content"})
 
-		# Get Graduate Courses
-		upperDivButton = driver.find_elements_by_xpath("//*[contains(text(), '" + "Graduate Courses" + "')]")
-		if len(upperDivButton) != 0:
-			driver.execute_script("arguments[0].click();", upperDivButton[0])
-			getHTML("div", {"class": "tab-content"})
+        # Get Graduate Courses
+        upperDivButton = driver.find_elements_by_xpath("//*[contains(text(), '" + "Graduate Courses" + "')]")
+        if len(upperDivButton) != 0:
+            driver.execute_script("arguments[0].click();", upperDivButton[0])
+            getHTML("div", {"class": "tab-content"})
 
+
+def ccle_professor_scraper(major, quarter):
+    """
+    major format: 'COM%20SCI', or 'AF%20AMER' etc.
+    quarter format: '19F', '18W', etc.
+
+    returns a list of (class id, professor, full class title) lists
+    """
+    global driver
+
+    url = 'https://ccle.ucla.edu/blocks/ucla_browseby/view.php?term={}&type=course&subjarea={}'.format(quarter, major)
+    driver.get(url)
+
+    page_source = driver.page_source
+    ccle_professor_parser = CCLEHTMLParser()
+
+    return ccle_professor_parser.get_class_professor_list(page_source)
 
 # start the driver and return it
 def setup_driver():
-	chrome_options = webdriver.ChromeOptions()
-	# chrome_options.add_argument("--headless")
-	chrome_options.add_argument("--start-maximized")
-	prefs = {"profile.default_content_setting_values.notifications" : 2}
-	chrome_options.add_experimental_option("prefs",prefs)
+    chrome_options = webdriver.ChromeOptions()
+    # chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--start-maximized")
+    prefs = {"profile.default_content_setting_values.notifications" : 2}
+    chrome_options.add_experimental_option("prefs",prefs)
 
-	print("Starting driver")
+    print("Starting driver")
 
     if platform == "linux" or platform == "linux2":
         print("Don't have linux chrome driver")
@@ -193,26 +211,28 @@ def setup_driver():
     elif platform == "win32":   # Windows...
         driver = webdriver.Chrome(executable_path = './chromedriver.exe', chrome_options=chrome_options)
 
-	return driver
+    return driver
 
 def main():
 
-	global driver
+    global driver
 
-	driver = setup_driver()
+    driver = setup_driver()
 
-	# Scrape the schedule of classes
-	sched_scrape()
+    # Scrape the schedule of classes
+    # sched_scrape()
 
-	# Scrape Class Descriptions
-	descriptions_scrape()
+    # Scrape Class Descriptions
+    # descriptions_scrape()
 
-	# Scrape course descriptions
-	descriptions_scrape()
+    # Scrape course descriptions
+    # descriptions_scrape()
 
-	time.sleep(10)
+    # Scrape Professors
+    # ccle_professor_scraper(quarter='19W', major='COM%20SCI')
+    time.sleep(10)
 
-	# driver.close()
+    # driver.close()
 
 if __name__ == '__main__':
-	main()
+    main()
