@@ -8,4 +8,8 @@ router.post('/test/', (req,res)=> {
   res.send("Welcome, " + req.body.name);
 });
 
+router.post('/testjson', (req,res)=> {
+  res.send(req.body.name + " " + req.body.age);
+});
+
 module.exports = router;
