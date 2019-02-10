@@ -27,6 +27,8 @@ from bs4 import BeautifulSoup
 import requests
 
 from sys import platform
+
+# External Files
 from CCLE_professor_parser import CCLEHTMLParser
 
 # ********************************************************************************
@@ -75,10 +77,12 @@ def getHTML(element, attributes):
 # Store the driver as a global
 driver = ""
 
+# ********************************************************************************
+# Scrape Schedule of Classes
 def sched_scrape():
     global driver
 
-	majors = ["Aerospace Studies", "African American Studies", "African Studies", "American Indian Studies", "American Sign Language", "Ancient Near East", "Anesthesiology", "Anthropology", "Applied Linguistics", "Arabic", "Archaeology", "Architecture and Urban Design", "Armenian", "Art", "Art History", "Arts and Architecture", "Arts Education", "Asian", "Asian American Studies", "Astronomy", "Atmospheric and Oceanic Sciences", "Bioengineering", "Bioinformatics", "Bioinformatics", "Biological Chemistry", "Biomathematics", "Biomedical Research", "Biostatistics", "Chemical Engineering", "Chemistry and Biochemistry", "Chicana and Chicano Studies", "Chinese", "Civic Engagement", "Civil and Environmental Engineering", "Classics", "Clusters", "Communication", "Community Health Sciences", "Comparative Literature", "Computational and Systems Biology", "Computer Science", "Conservation of Archaeological and Ethnographic Materials", "Dance", "Dentistry", "Design / Media Arts", "Digital Humanities", "Disability Studies", "Dutch", "Earth, Planetary, and Space Sciences", "Ecology and Evolutionary Biology", "Economics", "Education", "Electrical and Computer Engineering", "Engineering", "English", "English as A Second Language", "English Composition", "Environment", "Environmental Health Sciences", "Epidemiology", "Ethnomusicology", "Family Medicine", "Filipino", "Film and Television", "Food Studies", "French", "Gender Studies", "Geography", "German", "Gerontology", "Global Health", "Global Jazz Studies", "Global Studies", "Graduate Student Professional Development", "Greek", "Health Policy and Management", "Hebrew", "Hindi-Urdu", "History", "Honors Collegium", "Human Genetics", "Hungarian", "Indigenous Languages of the Americas", "Indo-European Studies", "Indonesian", "Information Studies", "International and Area Studies", "International Development Studies", "International Migration Studies", "Iranian", "Islamic Studies", "Italian", "Japanese", "Jewish Studies", "Korean", "Labor and Workplace Studies", "Latin", "Latin American Studies", "Law", "Lesbian, Gay, Bisexual, Transgender, and Queer Studies", "Life Sciences", "Linguistics", "Management", "Management-Executive MBA", "Management-Master of Financial Engineering", "Management-Master of Science in Business Analytics", "Management-PhD", "Materials Science and Engineering", "Mathematics", "Mechanical and Aerospace Engineering", "Medical History", "Medicine", "Microbiology, Immunology, and Molecular Genetics", "Middle Eastern Studies", "Military Science", "Molecular and Medical Pharmacology", "Molecular Biology", "Molecular Toxicology", "Molecular, Cell, and Developmental Biology", "Molecular, Cellular, and Integrative Physiology", "Music", "Music Industry", "Musicology", "Naval Science", "Near Eastern Languages", "Neurobiology", "Neurology", "Neuroscience", "Neuroscience", "Neurosurgery", "Nursing", "Obstetrics and Gynecology", "Ophthalmology", "Oral Biology", "Orthopaedic Surgery", "Pathology and Laboratory Medicine", "Pediatrics", "Philosophy", "Physics", "Physics and Biology in Medicine", "Physiological Science", "Physiology", "Polish", "Political Science", "Portuguese", "Program in Computing", "Psychiatry and Biobehavioral Sciences", "Psychology", "Public Affairs", "Public Health", "Public Policy", "Radiation Oncology", "Religion, Study of", "Romanian", "Russian", "Scandinavian", "Science Education", "Semitic", "Serbian/Croatian", "Slavic", "Social Science", "Social Thought", "Social Welfare", "Society and Genetics", "Sociology", "South Asian", "Southeast Asian", "Spanish", "Statistics", "Surgery", "Swahili", "Thai", "Theater", "Turkic Languages", "University Studies", "Urban Planning", "Urology", "Vietnamese", "World Arts and Cultures", "Yiddish"]
+    majors = ["Aerospace Studies", "African American Studies", "African Studies", "American Indian Studies", "American Sign Language", "Ancient Near East", "Anesthesiology", "Anthropology", "Applied Linguistics", "Arabic", "Archaeology", "Architecture and Urban Design", "Armenian", "Art", "Art History", "Arts and Architecture", "Arts Education", "Asian", "Asian American Studies", "Astronomy", "Atmospheric and Oceanic Sciences", "Bioengineering", "Bioinformatics", "Bioinformatics", "Biological Chemistry", "Biomathematics", "Biomedical Research", "Biostatistics", "Chemical Engineering", "Chemistry and Biochemistry", "Chicana and Chicano Studies", "Chinese", "Civic Engagement", "Civil and Environmental Engineering", "Classics", "Clusters", "Communication", "Community Health Sciences", "Comparative Literature", "Computational and Systems Biology", "Computer Science", "Conservation of Archaeological and Ethnographic Materials", "Dance", "Dentistry", "Design / Media Arts", "Digital Humanities", "Disability Studies", "Dutch", "Earth, Planetary, and Space Sciences", "Ecology and Evolutionary Biology", "Economics", "Education", "Electrical and Computer Engineering", "Engineering", "English", "English as A Second Language", "English Composition", "Environment", "Environmental Health Sciences", "Epidemiology", "Ethnomusicology", "Family Medicine", "Filipino", "Film and Television", "Food Studies", "French", "Gender Studies", "Geography", "German", "Gerontology", "Global Health", "Global Jazz Studies", "Global Studies", "Graduate Student Professional Development", "Greek", "Health Policy and Management", "Hebrew", "Hindi-Urdu", "History", "Honors Collegium", "Human Genetics", "Hungarian", "Indigenous Languages of the Americas", "Indo-European Studies", "Indonesian", "Information Studies", "International and Area Studies", "International Development Studies", "International Migration Studies", "Iranian", "Islamic Studies", "Italian", "Japanese", "Jewish Studies", "Korean", "Labor and Workplace Studies", "Latin", "Latin American Studies", "Law", "Lesbian, Gay, Bisexual, Transgender, and Queer Studies", "Life Sciences", "Linguistics", "Management", "Management-Executive MBA", "Management-Master of Financial Engineering", "Management-Master of Science in Business Analytics", "Management-PhD", "Materials Science and Engineering", "Mathematics", "Mechanical and Aerospace Engineering", "Medical History", "Medicine", "Microbiology, Immunology, and Molecular Genetics", "Middle Eastern Studies", "Military Science", "Molecular and Medical Pharmacology", "Molecular Biology", "Molecular Toxicology", "Molecular, Cell, and Developmental Biology", "Molecular, Cellular, and Integrative Physiology", "Music", "Music Industry", "Musicology", "Naval Science", "Near Eastern Languages", "Neurobiology", "Neurology", "Neuroscience", "Neuroscience", "Neurosurgery", "Nursing", "Obstetrics and Gynecology", "Ophthalmology", "Oral Biology", "Orthopaedic Surgery", "Pathology and Laboratory Medicine", "Pediatrics", "Philosophy", "Physics", "Physics and Biology in Medicine", "Physiological Science", "Physiology", "Polish", "Political Science", "Portuguese", "Program in Computing", "Psychiatry and Biobehavioral Sciences", "Psychology", "Public Affairs", "Public Health", "Public Policy", "Radiation Oncology", "Religion, Study of", "Romanian", "Russian", "Scandinavian", "Science Education", "Semitic", "Serbian/Croatian", "Slavic", "Social Science", "Social Thought", "Social Welfare", "Society and Genetics", "Sociology", "South Asian", "Southeast Asian", "Spanish", "Statistics", "Surgery", "Swahili", "Thai", "Theater", "Turkic Languages", "University Studies", "Urban Planning", "Urology", "Vietnamese", "World Arts and Cultures", "Yiddish"]
 
     for major in majors:
 
@@ -139,29 +143,36 @@ def sched_scrape():
         # TODO: there may be multiple pages of classes, need to go through each one
 
 
-# TODO: parse HTML that is output
+# ********************************************************************************
+# Scrape Course Descriptions
+
 def descriptions_scrape():
+
+    # TODO: parse HTML that is output
+
     global driver
 
     # TODO: get all major names in a file and read from that
-    # majors = ["Aerospace Studies", "African American Studies", "African Studies"]
-    majors = ["Aerospace Studies", "African American Studies"]
+
+    with open('major_list.json') as json_file:  
+        data = json.load(json_file)
+    majors = data["majors"]
 
 
     for major in majors:
         url = "https://www.registrar.ucla.edu/Academics/Course-Descriptions"
         driver.get(url)
         
-		# click on dropdown input
-		try:
-			className = driver.find_elements_by_xpath("//*[contains(text(), '" + major + "')]")
-			time.sleep(1)
-			print(className)
-			driver.execute_script("arguments[0].click();", className[0])
-			time.sleep(1)
+        # click on dropdown input
+        try:
+            className = driver.find_elements_by_xpath("//*[contains(text(), '" + major + "')]")
+            time.sleep(1)
+            print(className)
+            driver.execute_script("arguments[0].click();", className[0])
+            time.sleep(1)
 
-		except:
-			print("* " + major)
+        except:
+            print("* " + major)
 
 
         # Get the default course set (usually Lower Divs come up first)
@@ -179,6 +190,8 @@ def descriptions_scrape():
             driver.execute_script("arguments[0].click();", upperDivButton[0])
             getHTML("div", {"class": "tab-content"})
 
+# ********************************************************************************
+# Scrape CCLE Descriptions
 
 def ccle_professor_scraper(major, quarter):
     """
@@ -207,14 +220,14 @@ def setup_driver():
 
     print("Starting driver")
 
-	if platform == "linux" or platform == "linux2":
-		print("Don't have linux chrome driver")
-		return
+    if platform == "linux" or platform == "linux2":
+        print("Don't have linux chrome driver")
+        return
 
-	if platform == "darwin":  # OS X
-		driver = webdriver.Chrome(executable_path = './chromedriver', chrome_options=chrome_options)
-	elif platform == "win32":   # Windows...
-		driver = webdriver.Chrome(executable_path = './chromedriver.exe', chrome_options=chrome_options)
+    if platform == "darwin":  # OS X
+        driver = webdriver.Chrome(executable_path = './chromedrivers/chromedriver', chrome_options=chrome_options)
+    elif platform == "win32":   # Windows...
+        driver = webdriver.Chrome(executable_path = '.chromedrivers/chromedriver.exe', chrome_options=chrome_options)
 
     return driver
 
@@ -228,9 +241,6 @@ def main():
     # sched_scrape()
 
     # Scrape Class Descriptions
-    # descriptions_scrape()
-
-    # Scrape course descriptions
     # descriptions_scrape()
 
     # Scrape Professors
