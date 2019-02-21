@@ -16,7 +16,7 @@ router.post('/testjson', (req,res)=> {
   res.send(req.body.name + " " + req.body.age);
 });
 
-router.post('/testModel', function(req, res, next) {
+router.post('/post-prereq', function(req, res, next) {
   for (var i = 0; i < req.body.list.length; i++) {
     var obj = req.body.list[i];
     var p = new PreRequisitesSchema({
@@ -26,6 +26,7 @@ router.post('/testModel', function(req, res, next) {
     })
     p.save();
   }
+  res.send("Success");
 });
 
 module.exports = router;
