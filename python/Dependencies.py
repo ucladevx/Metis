@@ -2,8 +2,18 @@ import sys
 import os
 import re
 
-#Parse HTML and pull courses into a string
 def stringifyCourses(string):
+	"""
+	Parse HTML and pull courses into a string
+	
+	Parameters
+	--------------------
+		string  -- entire HTML string
+		
+	Returns
+	--------------------
+		coursesString -- String of relevent requisite courses
+	"""
 	coursePattern = r'class="popover-right".*javascript\:void\(0\)\"\>(.*?)\<\/a\>'
 	courses = re.findall(coursePattern,string)
 	courses = swapAndInCourse(courses)
@@ -24,21 +34,6 @@ def swapAndInCourse(courses):
 			courses[index] = courses[index][:-1] +'and'
 
 	return courses 
-'''
-def swapAndInCourse(courses):
-	patterns = [r'and',r'or$',r'\)']
-	#print(courses)
-	for index in range(len(courses)):
-		flag = -1
-		for pattern in patterns:
-			flag += len(re.findall(pattern,courses[index]))
-		if flag > 0:
-			courses[index] = re.sub('and','&',courses[index], 1)
-		if courses[index][-1]=='&':
-			courses[index] = courses[index][:-1] +'and'
-	print(courses)
-	return courses 
-'''
 
 #Turn '&' symbols back into 'and' after parsing and creating dependencies
 def unswapAndInCourse(courses):
@@ -51,8 +46,23 @@ def unswapAndInCourse(courses):
 	return
 
 def parseString(string, courses, recursed):
+
+	"""
+	Parse course string and output list of courses in a dependency format
+	
+	Parameters
+	--------------------
+		string  -- string of requisite courses
+		courses -- List of courses we will be appending to, [] if first call of function
+		recursed -- Bool denoting if this function has been called again from within this function
+		
+	Returns
+	--------------------
+		courses -- List of requisite courses in special format for denoting AND and OR dependencies
+				-- still needs to be further parsed
+	"""
+
 	#Check for double parentheses
-	#print(string)
 	check = re.search(r'\((\(.*\))\)',string)
 
 	if check:
@@ -63,7 +73,6 @@ def parseString(string, courses, recursed):
 		
 	#Identify all the different strings of 'or's, always contained in parentheses unless entire string consists of 1 'or' string
 	parentheses = re.findall(r'\((.*?)\)',string)
-	#print(parentheses)
 	for index in range(len(parentheses)):
 		left = 0
 		right = 0
@@ -81,6 +90,7 @@ def parseString(string, courses, recursed):
 	
 	#Identify the requisie courses before an 'and'
 	ands = re.findall(r'([^_]*?) and', string)
+
 	#Identify the last requisite course that follows an 'and'
 	lastAnd = re.search(r'.* and ([^_]*?)$',string)
 	if lastAnd:
@@ -89,7 +99,7 @@ def parseString(string, courses, recursed):
 		if len(group)==0:
 			continue
 		courses.append(group.strip())
-#fix this for loop
+
 	#Look at each string identified inside a parenthesis
 	for group in parentheses:
 		inner = re.findall(r'(.*?) or',group)
@@ -161,6 +171,7 @@ def parseString(string, courses, recursed):
 ############################################################################################################
 
 def parseDependencyTypes(dependencies,html,mapping):
+	#Outputs map denoting if certain requisite is enforced or not
 	for index in range(len(dependencies)):
 		if type(dependencies[index]) is str:
 			course = dependencies[index]
@@ -176,7 +187,7 @@ def parseDependencyTypes(dependencies,html,mapping):
 ############################################################################################################
 
 def processOrBlock(layer,pathways):
-
+#Helper function for processing pathways
 	orPathways = []
 	for sublayer in layer:
 		if type(sublayer) is str:
@@ -195,7 +206,21 @@ def processOrBlock(layer,pathways):
 	
 	return returnedPathways	
 
-def createPathways(dependencies,pathways):
+def createPathways(dependencies):
+	"""
+	Parse the dependencies list format and output all the different possible pathways to satisfy course requisites
+	
+	Parameters
+	--------------------
+		dependencies  -- List of requisite courses in special format for denoting AND and OR dependencies
+		
+	Returns
+	--------------------
+		finalPathways -- List of all different possible pathways
+	"""
+
+	pathways = []
+
 	#root and layer2 are 'and' (required)
 	root = []
 	layer2 = []
@@ -216,8 +241,6 @@ def createPathways(dependencies,pathways):
 	#peel second layer if no courses in root, and 1 list in layer2
 	if len(layer2)==1 and len(root)!=0:
 		layer2=layer2[0]
-	
-
 
 	if len(layer2)==1:
 		#Peel outer, useless layer if by itself
@@ -289,9 +312,25 @@ def createPathways(dependencies,pathways):
 						current.append(subcourse)
 		finalPathways.append(current)
 
-	print('')
 	return finalPathways
 
+############################################################################################################
+
+def checkReqs(pathways,totalReqs,takenCourses):
+#Comparison function
+	for course in takenCourses:
+		if course in totalReqs:
+			totalReqs[course] = True
+
+	for pathway in pathways:
+		for course in pathway:
+			if totalReqs[course]==False:
+				break
+		#If no inner break, then return the pathway
+		else:
+			return pathway
+		continue
+	return False
 ############################################################################################################
 
 def main():
@@ -313,8 +352,14 @@ def main():
 		courseDependencyTypes = dict()
 		
 		parseDependencyTypes(dependencies,pageSource,courseDependencyTypes)
-		#print(courseDependencyTypes)
-		pathways = createPathways(dependencies,[])
+
+		pathways = createPathways(dependencies)
 		print(pathways)
+		totalReqs = {}
+		for pathway in pathways:
+			for course in pathway:
+				totalReqs[course] = False
+		print(checkReqs(pathways,totalReqs,['Chemistry and Biochemistry 20L','Chemistry and Biochemistry 30AL','Chemistry and Biochemistry 14BL','Chemistry and Biochemistry 153AH']))
+
 if __name__ == '__main__':
 	main()
