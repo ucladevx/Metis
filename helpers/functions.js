@@ -25,7 +25,7 @@ function findRecommended(classesTaken){
         var cluster = deptRecs["lowerdiv"][k];
         if (cluster.includes(rec.class_taken.name))
         {
-          rec.similar_classes = cluster;
+          rec.similar_classes = cluster.filter((value) => value != rec.class_taken.name);
           found = true;
         }
       }
@@ -34,7 +34,7 @@ function findRecommended(classesTaken){
         var cluster = deptRecs["upperdiv"][k];
         if (cluster.includes(rec.class_taken.name))
         {
-          rec.similar_classes = cluster;
+          rec.similar_classes = cluster.filter((value) => value != rec.class_taken.name);
           found = true;
         }
       }
@@ -43,7 +43,7 @@ function findRecommended(classesTaken){
         var cluster = deptRecs["grad"][k];
         if (cluster.includes(rec.class_taken.name))
         {
-          rec.similar_classes = cluster;
+          rec.similar_classes = cluster.filter((value) => value != rec.class_taken.name);
           found = true;
         }
       }
