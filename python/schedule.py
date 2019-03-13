@@ -248,7 +248,7 @@ def setup_driver():
     if platform == "darwin":  # OS X
         driver = webdriver.Chrome(executable_path = './chromedrivers/chromedriver', chrome_options=chrome_options)
     elif platform == "win32":   # Windows...
-        driver = webdriver.Chrome(executable_path = '.chromedrivers/chromedriver.exe', chrome_options=chrome_options)
+        driver = webdriver.Chrome(executable_path = './chromedrivers/chromedriver.exe', chrome_options=chrome_options)
 
     return driver
 
