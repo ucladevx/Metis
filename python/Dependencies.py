@@ -334,6 +334,23 @@ def checkReqs(pathways,totalReqs,takenCourses):
 """
 ############################################################################################################
 
+def checkReqs(pathways,totalReqs,takenCourses):
+#Comparison function
+	for course in takenCourses:
+		if course in totalReqs:
+			totalReqs[course] = True
+
+	for pathway in pathways:
+		for course in pathway:
+			if totalReqs[course]==False:
+				break
+		#If no inner break, then return the pathway
+		else:
+			return pathway
+		continue
+	return False
+############################################################################################################
+
 def main():
 	examples = ['example9.txt']
 	for example in examples:
@@ -356,7 +373,6 @@ def main():
 
 		pathways = createPathways(dependencies)
 
-		
 
 if __name__ == '__main__':
 	main()
