@@ -154,7 +154,7 @@ def descriptions_scrape():
 
     # TODO: get all major names in a file and read from that
 
-    with open('major_list.json') as json_file:  
+    with open('major_list.json') as json_file:
         data = json.load(json_file)
     majors = data["majors"]
 
@@ -162,7 +162,7 @@ def descriptions_scrape():
     for major in majors:
         url = "https://www.registrar.ucla.edu/Academics/Course-Descriptions"
         driver.get(url)
-        
+
         # click on dropdown input
         try:
             className = driver.find_elements_by_xpath("//*[contains(text(), '" + major + "')]")
@@ -238,7 +238,7 @@ def main():
     driver = setup_driver()
 
     # Scrape the schedule of classes
-    # sched_scrape()
+    sched_scrape()
 
     # Scrape Class Descriptions
     # descriptions_scrape()
