@@ -83,13 +83,13 @@ driver = ""
 def sched_scrape():
     global driver
 
-    majors = ["Aerospace Studies", "African American Studies", "African Studies", "American Indian Studies", "American Sign Language", "Ancient Near East", "Anesthesiology", "Anthropology", "Applied Linguistics", "Arabic", "Archaeology", "Architecture and Urban Design", "Armenian", "Art", "Art History", "Arts and Architecture", "Arts Education", "Asian", "Asian American Studies", "Astronomy", "Atmospheric and Oceanic Sciences", "Bioengineering", "Bioinformatics", "Bioinformatics", "Biological Chemistry", "Biomathematics", "Biomedical Research", "Biostatistics", "Chemical Engineering", "Chemistry and Biochemistry", "Chicana and Chicano Studies", "Chinese", "Civic Engagement", "Civil and Environmental Engineering", "Classics", "Clusters", "Communication", "Community Health Sciences", "Comparative Literature", "Computational and Systems Biology", "Computer Science", "Conservation of Archaeological and Ethnographic Materials", "Dance", "Dentistry", "Design / Media Arts", "Digital Humanities", "Disability Studies", "Dutch", "Earth, Planetary, and Space Sciences", "Ecology and Evolutionary Biology", "Economics", "Education", "Electrical and Computer Engineering", "Engineering", "English", "English as A Second Language", "English Composition", "Environment", "Environmental Health Sciences", "Epidemiology", "Ethnomusicology", "Family Medicine", "Filipino", "Film and Television", "Food Studies", "French", "Gender Studies", "Geography", "German", "Gerontology", "Global Health", "Global Jazz Studies", "Global Studies", "Graduate Student Professional Development", "Greek", "Health Policy and Management", "Hebrew", "Hindi-Urdu", "History", "Honors Collegium", "Human Genetics", "Hungarian", "Indigenous Languages of the Americas", "Indo-European Studies", "Indonesian", "Information Studies", "International and Area Studies", "International Development Studies", "International Migration Studies", "Iranian", "Islamic Studies", "Italian", "Japanese", "Jewish Studies", "Korean", "Labor and Workplace Studies", "Latin", "Latin American Studies", "Law", "Lesbian, Gay, Bisexual, Transgender, and Queer Studies", "Life Sciences", "Linguistics", "Management", "Management-Executive MBA", "Management-Master of Financial Engineering", "Management-Master of Science in Business Analytics", "Management-PhD", "Materials Science and Engineering", "Mathematics", "Mechanical and Aerospace Engineering", "Medical History", "Medicine", "Microbiology, Immunology, and Molecular Genetics", "Middle Eastern Studies", "Military Science", "Molecular and Medical Pharmacology", "Molecular Biology", "Molecular Toxicology", "Molecular, Cell, and Developmental Biology", "Molecular, Cellular, and Integrative Physiology", "Music", "Music Industry", "Musicology", "Naval Science", "Near Eastern Languages", "Neurobiology", "Neurology", "Neuroscience", "Neuroscience", "Neurosurgery", "Nursing", "Obstetrics and Gynecology", "Ophthalmology", "Oral Biology", "Orthopaedic Surgery", "Pathology and Laboratory Medicine", "Pediatrics", "Philosophy", "Physics", "Physics and Biology in Medicine", "Physiological Science", "Physiology", "Polish", "Political Science", "Portuguese", "Program in Computing", "Psychiatry and Biobehavioral Sciences", "Psychology", "Public Affairs", "Public Health", "Public Policy", "Radiation Oncology", "Religion, Study of", "Romanian", "Russian", "Scandinavian", "Science Education", "Semitic", "Serbian/Croatian", "Slavic", "Social Science", "Social Thought", "Social Welfare", "Society and Genetics", "Sociology", "South Asian", "Southeast Asian", "Spanish", "Statistics", "Surgery", "Swahili", "Thai", "Theater", "Turkic Languages", "University Studies", "Urban Planning", "Urology", "Vietnamese", "World Arts and Cultures", "Yiddish"]
-    
-    #majors = ["Art"]
-    majorMap = {}
+    majorMap = {}   # store pre-reqs for each major
+    with open('major_list.json') as json_file:
+        data = json.load(json_file)
+    majors = data["majors"]
 
     for major in majors:
-        try: 
+        try:
             majorMap[major] = {}
             courseMap = majorMap[major]
 
@@ -103,15 +103,15 @@ def sched_scrape():
             subject_area_input.click()
             time.sleep(1)
 
-            print("Clicked input")
-
             # TODO: do majors have to be visible? try typing the majors instead of clicking?
             # select the major
             class_dropdown = check_exists_by_xpath("""//*[@id="select_filter_subject"]""", driver)
             class_dropdown.click()
             state = driver.find_elements_by_xpath("//*[contains(text(), '" + major + "')]")
+
             # Select the major from the dropdown
-            for s in state:                        # only one of the returned elements is clickable, not sure which one
+            for s in state:
+                # only one of the returned elements is clickable, not sure which one so try all
                 driver.execute_script("arguments[0].click()", s)
             driver.execute_script("arguments[0].click();", state[1])
 
@@ -121,66 +121,81 @@ def sched_scrape():
             go.click()
             time.sleep(2)
 
+            # go through all pages of a major, if they exist
+            lim = 0
             try:
-                numbers = check_exists_by_xpath("""//*[@class="jPag-pages"]""", driver)
-
-                if len(numbers) != 0:
-                    print("###")
-                    print(numbers)
-                    for number in numbers:
-                        driver.execute_script("arguments[0].click();", number)
-
+                pages = driver.find_elements_by_xpath("""//*[@class="jPag-pages"]""")
+                li_list = pages[0].find_elements_by_xpath(".//*")
+                li_list = li_list[::2]
+                lim = len(li_list)
             except:
-                print("hi")
+                lim = 1
 
-            # Click on the "expand all" button to see section information
-            expand_classes = check_exists_by_xpath("""//*[@id="expandAll"]""", driver)
-            driver.execute_script("arguments[0].click();", expand_classes)
-            time.sleep(2)
+            for i in range(0, lim):
 
-            # Click on "lec1", "lab1", etc. to open new tab
-            sections = driver.find_elements_by_xpath("""//*[@class="hide-small"]""")    # get elements that hold the anchor tags
+                if lim != 1:
+                    # repeat because the links have been refreshed
+                    pages = driver.find_elements_by_xpath("""//*[@class="jPag-pages"]""")
+                    li_list = pages[0].find_elements_by_xpath(".//*")
+                    li_list = li_list[::2]
 
-            # for each element found, get the anchor tag child
-            section_links = []
-            for s in sections:
-                section_links.append(s.find_elements_by_xpath(".//*"))
+                    # click twice, bug sometimes doesn't expand all classes otherwise
+                    driver.execute_script("arguments[0].click();", li_list[i])
+                    time.sleep(1)
+                    driver.execute_script("arguments[0].click();", li_list[i])
+                    time.sleep(1)
 
-            # click on the anchor tags, switch to new tab, close it, switch back to original tab
-            for section in section_links:
-                driver.execute_script("arguments[0].click();", section[0])
-                time.sleep(2)
-                driver.switch_to.window(driver.window_handles[1])
+                # Click on the "expand all" button to see section information
+                expand_classes = check_exists_by_xpath("""//*[@id="expandAll"]""", driver)
+                driver.execute_script("arguments[0].click();", expand_classes)
+                time.sleep(1)
+
+                # Click on "lec1", "lab1", etc. to open new tab
+                sections = driver.find_elements_by_xpath("""//*[@class="hide-small"]""")    # get elements that hold the anchor tags
+                # for each element found, get the anchor tag child
+                section_links = []
+                for s in sections:
+                    section_links.append(s.find_elements_by_xpath(".//*"))
+
+                # click on the anchor tags, switch to new tab, close it, switch back to original tab
+                for section in section_links:
+
+                    # don't need discussions to get pre-reqs
+                    if ("Dis" not in section[0].text) or ("Lab" in section[0].text and (section[0].text == "Lab 1" or section[0].text == "Lab 1A")):
+
+                        driver.execute_script("arguments[0].click();", section[0])
+                        time.sleep(2)
+                        driver.switch_to.window(driver.window_handles[1])
+
+                        # Get the current page's HTML
+                        page_response = requests.get(driver.current_url, timeout=5)
+
+                        # Get pre-reqs with getReqs()
+                        courseTitle=re.search(r'subject_class[\s\S]*?( .*?) - ',page_response.text).group(1).strip()
+                        courseTitle = " ".join(courseTitle.split())
+                        courseTitle = courseTitle.replace("%26", "&")
+                        courseTitle = courseTitle.replace("&amp;", "&")
+                        try:
+                            courseMap[courseTitle] = Dependencies.getReqs(page_response.text)
+                        except:
+                            courseMap[courseTitle] = "Error"
+                        time.sleep(2)
+                        driver.close()
+                        driver.switch_to.window(driver.window_handles[0])
+
                 # Get the current page's HTML
-                # TODO: WILL, this is the raw HTML input to your function
                 page_response = requests.get(driver.current_url, timeout=5)
 
-                courseTitle=re.search(r'subject_class[\s\S]*?( .*?) - ',page_response.text).group(1).strip()
-                courseTitle = " ".join(courseTitle.split())
-                courseTitle = courseTitle.replace("%26", "&")
-                courseTitle = courseTitle.replace("&amp;", "&")
-                try:
-                    courseMap[courseTitle] = Dependencies.getReqs(page_response.text)
-                except:
-                    courseMap[courseTitle] = "Error"
-                time.sleep(2)
-                driver.close()
-                driver.switch_to.window(driver.window_handles[0])
+                # Create a soup
+                soup = BeautifulSoup(page_response.content, "html.parser")
+                classes = soup.find(id="divSearchResults")
+                # print(classes.findChildren())
 
-            # Get the current page's HTML
-            page_response = requests.get(driver.current_url, timeout=5)
+                # TODO: extract info from the soup, info may not be accessible because of js
 
-            # Create a soup
-            soup = BeautifulSoup(page_response.content, "html.parser")
-            classes = soup.find(id="divSearchResults")
-            # print(classes.findChildren())
-
-            # TODO: extract info from the soup, info may not be accessible because of js
-
-            # TODO: there may be multiple pages of classes, need to go through each one
         except:
-
             majorMap[major] = "Error"
+
     print(majorMap)
 
 
