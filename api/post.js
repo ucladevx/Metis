@@ -41,6 +41,28 @@ router.post('/post-classlist', function(req, res, next) {
   res.send("Success");
 });
 
+const maxClasses = {
+	classes: [
+    [
+      { id: 1, dept: "COM SCI", name: "1" },
+      { id: 2, dept: "COM SCI", name: "31" },
+      { id: 3, dept: "KOREA", name: "50" },
+      { id: 4, dept: "COM SCI", name: "M51A" }
+    ],
+    [
+      { id: 5, dept: "COM SCI", name: "32" },
+      { id: 6, dept: "COM SCI", name: "35L" },
+      { id: 7, dept: "MATH", name: "33B" },
+      { id: 8, dept: "PHYS", name: "1B" } 
+    ],
+	]
+}
+
+router.post('/find-recommended', function(req, res, next) {
+  var ans = helpers.findRecommended(maxClasses);
+  res.send(ans);
+});
+
 // router.post('/get-prereq', function(req, res, next) {
 //   // req: 
 //   // res: json containing prereqs of class
