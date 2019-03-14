@@ -315,7 +315,7 @@ def createPathways(dependencies):
 	return finalPathways
 
 ############################################################################################################
-
+"""
 def checkReqs(pathways,totalReqs,takenCourses):
 #Comparison function
 	for course in takenCourses:
@@ -331,8 +331,15 @@ def checkReqs(pathways,totalReqs,takenCourses):
 			return pathway
 		continue
 	return False
+"""
 ############################################################################################################
 
+def getReqs(html):
+	stringOfCourses = stringifyCourses(html)
+	dependencies = parseString(stringOfCourses,[],False)
+	pathways = createPathways(dependencies)
+	return (pathways)
+	
 def main():
 	examples = ['example9.txt']
 	for example in examples:
@@ -354,12 +361,9 @@ def main():
 		parseDependencyTypes(dependencies,pageSource,courseDependencyTypes)
 
 		pathways = createPathways(dependencies)
-		print(pathways)
-		totalReqs = {}
-		for pathway in pathways:
-			for course in pathway:
-				totalReqs[course] = False
-		print(checkReqs(pathways,totalReqs,['Chemistry and Biochemistry 20L','Chemistry and Biochemistry 30AL','Chemistry and Biochemistry 14BL','Chemistry and Biochemistry 153AH']))
+
 
 if __name__ == '__main__':
 	main()
+
+#Upperdivs for Desma, CS, Poli Sci
