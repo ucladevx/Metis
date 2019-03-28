@@ -88,6 +88,7 @@ def sched_scrape():
     with open('major_list.json') as json_file:
         data = json.load(json_file)
     majors = data["majors"]
+
     #with open('complete10.json') as json_file:
     #    majorMap = json.load(json_file)
 
@@ -97,7 +98,6 @@ def sched_scrape():
             if majorMap[major] != "Error":
                 continue
         try:
-
             majorMap[major] = {}
             courseMap = majorMap[major]
 
@@ -156,7 +156,9 @@ def sched_scrape():
                 # Click on the "expand all" button to see section information
                 expand_classes = check_exists_by_xpath("""//*[@id="expandAll"]""", driver)
                 driver.execute_script("arguments[0].click();", expand_classes)
+
                 time.sleep(15)
+
 
                 # Click on "lec1", "lab1", etc. to open new tab
                 sections = driver.find_elements_by_xpath("""//*[@class="hide-small"]""")    # get elements that hold the anchor tags
@@ -169,11 +171,13 @@ def sched_scrape():
                 for section in section_links:
 
                     # don't need discussions to get pre-reqs
+
                     if ("Dis" not in section[0].text and "Tut" not in section[0].text) or ("Sem" in section[0].text and (section[0].text == "Sem 1")) or ("Lab" in section[0].text and (section[0].text == "Lab 1" or section[0].text == "Lab 1A")):
                         if ("Sem" in section[0].text and section[0].text!="Sem 1"):
                             continue
                         if ("Lab" in section[0].text and (section[0].text != "Lab 1" and section[0].text != "Lab 1A")):
                             continue
+
                         driver.execute_script("arguments[0].click();", section[0])
                         time.sleep(2)
                         driver.switch_to.window(driver.window_handles[1])
@@ -188,6 +192,7 @@ def sched_scrape():
                         courseTitle = courseTitle.replace("&amp;", "&")
                         try:
                             courseMap[courseTitle] = Dependencies.getReqs(page_response.text)
+
                             time.sleep(2)
                             driver.close()
                             driver.switch_to.window(driver.window_handles[0])
@@ -199,6 +204,7 @@ def sched_scrape():
                         #time.sleep(1)
                         #driver.close()
                         #driver.switch_to.window(driver.window_handles[0])
+
 
                 # Get the current page's HTML
                 page_response = requests.get(driver.current_url, timeout=5)
