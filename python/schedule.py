@@ -22,6 +22,7 @@ import datetime, re, sys
 import pytz
 import time
 import openpyxl
+import json
 
 from bs4 import BeautifulSoup
 import requests
@@ -88,7 +89,14 @@ def sched_scrape():
         data = json.load(json_file)
     majors = data["majors"]
 
+    #with open('complete10.json') as json_file:
+    #    majorMap = json.load(json_file)
+
+    #majors = ['Communication', "Community Health Sciences",'Comparative Literature']
     for major in majors:
+        if major in majorMap:
+            if majorMap[major] != "Error":
+                continue
         try:
             majorMap[major] = {}
             courseMap = majorMap[major]
@@ -99,9 +107,9 @@ def sched_scrape():
 
             # click on dropdown input
             subject_area_input = check_exists_by_xpath("""//*[@id="select_filter_subject"]""", driver)
-            time.sleep(1)
+            time.sleep(2)
             subject_area_input.click()
-            time.sleep(1)
+            time.sleep(2)
 
             # TODO: do majors have to be visible? try typing the majors instead of clicking?
             # select the major
@@ -148,7 +156,9 @@ def sched_scrape():
                 # Click on the "expand all" button to see section information
                 expand_classes = check_exists_by_xpath("""//*[@id="expandAll"]""", driver)
                 driver.execute_script("arguments[0].click();", expand_classes)
-                time.sleep(1)
+
+                time.sleep(15)
+
 
                 # Click on "lec1", "lab1", etc. to open new tab
                 sections = driver.find_elements_by_xpath("""//*[@class="hide-small"]""")    # get elements that hold the anchor tags
@@ -161,7 +171,12 @@ def sched_scrape():
                 for section in section_links:
 
                     # don't need discussions to get pre-reqs
-                    if ("Dis" not in section[0].text) or ("Lab" in section[0].text and (section[0].text == "Lab 1" or section[0].text == "Lab 1A")):
+
+                    if ("Dis" not in section[0].text and "Tut" not in section[0].text) or ("Sem" in section[0].text and (section[0].text == "Sem 1")) or ("Lab" in section[0].text and (section[0].text == "Lab 1" or section[0].text == "Lab 1A")):
+                        if ("Sem" in section[0].text and section[0].text!="Sem 1"):
+                            continue
+                        if ("Lab" in section[0].text and (section[0].text != "Lab 1" and section[0].text != "Lab 1A")):
+                            continue
 
                         driver.execute_script("arguments[0].click();", section[0])
                         time.sleep(2)
@@ -177,11 +192,19 @@ def sched_scrape():
                         courseTitle = courseTitle.replace("&amp;", "&")
                         try:
                             courseMap[courseTitle] = Dependencies.getReqs(page_response.text)
+
+                            time.sleep(2)
+                            driver.close()
+                            driver.switch_to.window(driver.window_handles[0])
                         except:
                             courseMap[courseTitle] = "Error"
-                        time.sleep(2)
-                        driver.close()
-                        driver.switch_to.window(driver.window_handles[0])
+                            time.sleep(2)
+                            driver.close()
+                            driver.switch_to.window(driver.window_handles[0])
+                        #time.sleep(1)
+                        #driver.close()
+                        #driver.switch_to.window(driver.window_handles[0])
+
 
                 # Get the current page's HTML
                 page_response = requests.get(driver.current_url, timeout=5)
