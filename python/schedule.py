@@ -87,8 +87,8 @@ def sched_scrape():
     majorMap = {}   # store pre-reqs for each major
     with open('major_list.json') as json_file:
         data = json.load(json_file)
-    majors = data["majors"]
-
+    #majors = data["majors"]
+    majors = ['Asian']
     #with open('complete10.json') as json_file:
     #    majorMap = json.load(json_file)
 

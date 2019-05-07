@@ -3,35 +3,94 @@
 const express = require('express');
 var router = express.Router();
 const dbHelpers = require('../helpers/db.js');
+const major_acronyms = require('../python/major_acronyms.json');
+const clustersJSON = require('../python/clustering/clusters.json');
 
 const prereqJSON = require('../python/complete.json');
 
-async function populatePrereqs(){
+async function populateCourses(){
 
 	const dbase = dbHelpers.getDb();
 	const db = dbase.db("Metis");
-	const prereqCollection = db.collection("Prerequisites")
+	const courseCollection = db.collection("Course");
 
 	for(var major in prereqJSON){
-		/* Not sure if needed
-		if (!prereqJSON.hasOwnProperty(major)) {
-        The current property is not a direct property of p
-        	continue;
-    	}
-    	*/
+
     	majorClasses = prereqJSON[major];
 
 		for(var classID in majorClasses){
-	    	pathways = majorClasses[classID];
-	    	var prereqEntry = {
-	    		"class_id" : classID,
-	    		"prerequisites": pathways
-	    	}
+
+			var pathways = majorClasses[classID];
+			var department = "";
+			var similarClasses = [];
+			var type = "";
+			var departmentPattern = /([ a-zA-Z]*) [a-zA-Z]*[0-9]/g;
+
+			try{
+				var abbreviation = departmentPattern.exec(classID)[1];
+				department = major_acronyms[abbreviation];
+
+				var typePattern = /([0-9]+)/g;
+				var number = typePattern.exec(classID)[1];
+				
+				if(parseInt(number) <100 ){
+					type = "lower";
+				}
+				else if(parseInt(number)<200)
+					type = "upper";
+				else
+					type = "grad";
+				
+		    	var similarClasses = []
+		    	var similarType = type;
+		    	if (similarType == "lower" || similarType =="upper")
+		    		similarType += "div";
+
+		    	var similarPattern = /[a-zA-z]+ ([a-zA-Z]*[0-9]+[a-zA-Z]*)/g
+		    	var similarMatch = similarPattern.exec(classID)[1];
+
+		    	var clusters = clustersJSON[department][similarType];
+		    	var flag = false;
+		    	for(var cluster of clusters){
+		    		for(var item of cluster){
+		    			//console.log(item)
+		    			if(item == similarMatch){
+		    				for(var similarItem of cluster){
+		    					if(similarItem == similarMatch)
+		    						continue;
+		    					similarClasses.push(similarItem);
+		    				}
+		    				flag=true;
+		    			}
+		    			if(flag)
+		    				break;
+		    		}
+		    		if(flag)
+		    			break;
+		    	}
+
+
+			}catch(e)
+			{
+				department = "Error";
+				similarClasses = [];
+				type = "Error";
+			}
+			var courseEntry = {
+		    		"class_id" : classID,
+		    		"prerequisites": pathways,
+		    		"department": department,
+		    		"professor-term": "placeholder",
+		    		"similar_classes": similarClasses,
+		    		"type": type
+		    	}
+	    	//console.log(courseEntry);
 			//console.log(prereqEntry);
+			
 			try {
-				r = await prereqCollection.updateOne(
+				r = await courseCollection.updateOne(
 					{ "class_id" :  classID },
-			        { $set: {"prerequisites": pathways} },
+			        { $set: {"prerequisites": pathways, "department": department, "professor-term": "placeholder", "similar_classes": similarClasses, "type": type} },
 			        { upsert: true }
 			       );
 				if(r["upsertedId"]){
@@ -46,7 +105,7 @@ async function populatePrereqs(){
 			} catch(e){
 				console.log(e);
 			}
-
+			
 
 
 
@@ -56,5 +115,5 @@ async function populatePrereqs(){
 };
 
 dbHelpers.initDb(function(err){
-	populatePrereqs();
+	populateCourses();
 });
