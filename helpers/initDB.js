@@ -7,6 +7,9 @@ const major_acronyms = require('../python/major_acronyms.json');
 const clustersJSON = require('../python/clustering/clusters.json');
 
 const prereqJSON = require('../python/complete.json');
+const departmentsJSON = require("../python/major_list.json");
+const acronymsJSON = require("../python/major_acronyms.json");
+
 
 async function populateCourses(){
 
@@ -114,6 +117,97 @@ async function populateCourses(){
 	return null;
 };
 
+
+async function createDepartments(){
+	const dbase = dbHelpers.getDb();
+	const db = dbase.db("Metis");
+	const departmentsCollection = db.collection("Departments");
+
+	for(var major of departmentsJSON["majors"]){
+		console.log(major);
+
+		try {
+			r = await departmentsCollection.updateOne(
+				{ "department_id" : major  },
+				{ $set: {"department_id": major}},
+		        { upsert: true }
+		       );
+			if(r["upsertedId"]){
+				console.log("Created User document " + major);
+			}
+			else if(r["modifiedCount"] > 0){
+				console.log("Updated User document " +  major);
+			}
+			else{
+				console.log("User document found but not updated " + major);
+			}
+		}
+		catch(e){
+			console.log(e);
+		}
+
+	}
+}
+
+
+//Course Acronymps
+
+async function createAcronymsMap(){
+    const dbase = dbHelpers.getDb();
+	const db = dbase.db("Metis");
+	const acronymsToMajorCollection = db.collection("AcronymsToMajor");
+	const majorToAcronymsCollection = db.collection("MajorToAcronyms");
+
+	for(var acronym in acronymsJSON){
+		var major = acronymsJSON[acronym];
+
+		try {
+			r = await acronymsToMajorCollection.updateOne(
+				{ "acronym" : acronym  },
+				{ $set: {"major": major}},
+		        { upsert: true }
+		       );
+			if(r["upsertedId"]){
+				console.log("Created User document " + acronym);
+			}
+			else if(r["modifiedCount"] > 0){
+				console.log("Updated User document " +  acronym);
+			}
+			else{
+				console.log("User document found but not updated " + acronym);
+			}
+		}
+		catch(e){
+			console.log(e);
+		}
+
+
+		try {
+			r = await majorToAcronymsCollection.updateOne(
+				{ "major" : major  },
+				{ $set: {"acronym": acronym}},
+		        { upsert: true }
+		       );
+			if(r["upsertedId"]){
+				console.log("Created User document " + major);
+			}
+			else if(r["modifiedCount"] > 0){
+				console.log("Updated User document " +  major);
+			}
+			else{
+				console.log("User document found but not updated " + major);
+			}
+		}
+		catch(e){
+			console.log(e);
+		}
+
+
+	}
+}
+
 dbHelpers.initDb(function(err){
-	populateCourses();
+	createAcronymsMap();
 });
+
+//createDepartments();

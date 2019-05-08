@@ -45,9 +45,9 @@ router.get('/checkRequisites', function(req,res,next){
 		});
 		return;
 	}
-	var pathways = courseObject.prerequisites;
+	var coursePathways = courseObject.prerequisites;
 
-	var validPathway = requisiteHelpers.checkReqs(pathways,takenCourses);
+	var validPathway = requisiteHelpers.checkReqs(coursePathways,takenCourses);
 	if(validPathway == null)
 		res.status(200).json({
 			'exists':true,
@@ -62,7 +62,37 @@ router.get('/checkRequisites', function(req,res,next){
 		})
 	return;
 });
+
+
+router.get('/majors', function(req,res,next){
+	const dbase = dbHelpers.getDb();
+	const db = dbase.db("Metis");
+	const departments = db.collection("Departments");
+	var majorList = [];
+	
+	try{
+		var objectArray = await departments.find().toArray();
+		for(var object of objectArray){
+			majorList.push(object["department_id"]);
+		}
+		res.send(majorList);
+		
+	} catch(error){
+		console.log(error);
+		res.send(error);
+	}
+
+});
+
+
+dbHelpers.initDb(function(err){
+	test();
+	return;
+});
+
+
 //parameter: array of class_ids taken
 //route for old function of checking if user can take a certain class
+
 //route for new function given major, what classes user can take from the pool. Returns json of all class names, true if can, list of classes to take that class if not. JSON of class_ids: {bool, [string]}
 module.exports = router;
