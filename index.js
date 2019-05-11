@@ -2,6 +2,7 @@ const bodyParser = require('body-parser');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors')
+require('dotenv').config();
 
 // Database init and access functions
 const db = require('./helpers/db.js')
@@ -28,6 +29,6 @@ app.get('/', (req,res) => {
 // Connect to database, on success start server
 db.initDb(function(err){
   app.listen(process.env.PORT || 3000, () => {
-  	console.log("listening on port 3000");
+  	console.log("server listening");
   });
 });
