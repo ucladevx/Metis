@@ -1,6 +1,6 @@
 const assert = require("assert");
 const client = require("mongodb").MongoClient;
-const config = require('../config/config');
+require('dotenv').config();
 let _db;
 
 function initDb(callback) {
@@ -10,14 +10,14 @@ function initDb(callback) {
     return callback(null, _db);
   }
 
-  client.connect(config.db.mongoURI.key, config.db.connectionOptions, connected);
+  client.connect(process.env.MONGODB_URI, { useNewUrlParser: true }, connected);
   function connected(err, db) {
 
     if (err) {
       console.log(err)
       return callback(err);
     }
-    console.log("DB initialized - connected to: " + config.db.mongoURI.key.split("@")[1]);
+    console.log("DB initialized - connected to: " + process.env.MONGODB_URI);
     _db = db;
     return callback(null, _db);
   }
