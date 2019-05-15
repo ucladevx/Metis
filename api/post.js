@@ -103,7 +103,15 @@ router.post('/user', function(req, res, next){
   try {
      userDB.updateOne(
         { id :  req.body.id },
-        { $set: {name: req.body.name} },
+        { $set: {
+                name: req.body.name, 
+                email: req.body.email, 
+                major: req.body.major,
+                startTerm: req.body.startTerm,
+                takenCourses: req.body.takenCourses
+
+              } 
+        },
         { upsert: true }
      ).then((r) => {
        if(r["upsertedId"]){

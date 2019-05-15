@@ -79,6 +79,38 @@ router.get('/validMajorClasses', async function(req,res,next){
 
 });
 
+router.get('/search', async function(req,res,next){
+
+	const dbase = dbHelpers.getDb();
+	const db = dbase.db("Metis");
+	const courses = db.collection("Course");
+
+	var department = req.body.department;
+
+	var courseList = [];
+
+	try{
+		var objectArray = await courses.find({"department":department}).toArray();
+	} catch(error){
+		console.log(error);
+		//res.send(error);
+	}
+	for(var course of objectArray){
+		courseList.push(course["class_id"]);
+	}
+	var returnObject = {"department": courseList};
+	console.log(returnObject);
+	res.send(returnObject);
+
+});
+
+
+/*
+dbHelpers.initDb(function(err){
+	search("Mathematics");
+	return;
+});
+*/
 module.exports = router;
 
 /*
