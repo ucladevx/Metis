@@ -26,7 +26,7 @@ router.get('/initDB', function(req, res, next){
   db3.createCollection("Users")
 
 });
-
+/*
 router.get('/checkRequisites', function(req,res,next){
 	const dbase = dbHelpers.getDb();
 	const db = dbase.db("Metis");
@@ -62,9 +62,9 @@ router.get('/checkRequisites', function(req,res,next){
 		})
 	return;
 });
+*/
 
-
-router.get('/majors', function(req,res,next){
+router.get('/majors', async function(req,res,next){
 	const dbase = dbHelpers.getDb();
 	const db = dbase.db("Metis");
 	const departments = db.collection("Departments");
@@ -84,9 +84,28 @@ router.get('/majors', function(req,res,next){
 
 });
 
+async function validClasses(major,takenCourses){
+	const dbase = dbHelpers.getDb();
+	const db = dbase.db("Metis");
+	const courses = db.collection("Course");
+	var validClasses = {};
+
+	var objectArray = await courses.find({"department":major}).toArray();
+	for(var courseObject of objectArray){
+		var courseID = courseObject["class_id"];
+		var coursePathways = courseObject["prerequisites"];
+		//console.log(coursePathways);
+		var checkedPathways = requisiteHelpers.checkPathways(takenCourses,coursePathways);
+
+		validClasses[courseID] = checkedPathways;
+
+		//validClasses[courseID] = 1;
+	}
+	console.log(validClasses);
+};
 
 dbHelpers.initDb(function(err){
-	test();
+	validClasses("Computer Science",['Computer Science 31','Computer Science 32','Computer Science 33']);
 	return;
 });
 
