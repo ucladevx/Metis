@@ -34,6 +34,22 @@ function checkReqs(pathways,takenCourses){
 	return null;
 }*/
 
+//validClasses("Computer Science",['Computer Science 31','Computer Science 32','Computer Science 33']);
+function validClasses(takenCourses, objectArray){
+
+	var validClassesMap = {};
+	for(var courseObject of objectArray){
+		var courseID = courseObject["class_id"];
+		var coursePathways = courseObject["prerequisites"];
+		//console.log(coursePathways);
+		var checkedPathways = checkPathways(takenCourses,coursePathways);
+
+		validClassesMap[courseID] = checkedPathways;
+		//validClasses[courseID] = 1;
+	}
+	return validClassesMap;
+};
+
 function checkPathways(takenCourses, pathways){
 	if(pathways.length == 0)
 		return [];
@@ -74,7 +90,7 @@ function parseTakenClasses(classesJSON){
 	return takenCourses;
 }*/
 
-module.exports = {checkPathways};
+module.exports = {validClasses};
 
 //var takenCourses = parseTakenClasses(initialState);
 //console.log(checkReqs([['Computer Science 1']],takenCourses));
