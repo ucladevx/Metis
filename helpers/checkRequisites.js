@@ -1,7 +1,7 @@
 const express = require('express');
 var router = express.Router();
 const acronymMap = require('../python/major_acronyms');
-
+/*
 function checkReqs(pathways,takenCourses){
 	if(pathways.length==0)
 		return []
@@ -32,8 +32,37 @@ function checkReqs(pathways,takenCourses){
 		continue;
 	}
 	return null;
-}
+}*/
 
+function checkPathways(takenCourses, pathways){
+	if(pathways.length == 0)
+		return [];
+
+	//var satisfiedFlag = 0;
+	var incompletePathways = []; 
+
+	for(var pathway of pathways){
+		var checkedPathway = checkSinglePathway(takenCourses, pathway);
+
+		if(checkedPathway.length == 0)
+			return [];
+		else
+			incompletePathways.push(checkedPathway);
+	}
+	return incompletePathways;
+};
+
+function checkSinglePathway(takenCourses,pathway){
+	var incompletePathway = [];
+	for(var course of pathway){
+		if(takenCourses.includes(course))
+			continue;
+		else
+			incompletePathway.push(course);
+	}
+	return incompletePathway; //returns empty [] if pathway is satisfied
+};
+/*
 function parseTakenClasses(classesJSON){
 	let quarters = classesJSON['classes'];
 	let takenCourses = [];
@@ -43,7 +72,9 @@ function parseTakenClasses(classesJSON){
 		}
 	}
 	return takenCourses;
-}
+}*/
+
+module.exports = {checkPathways};
 
 //var takenCourses = parseTakenClasses(initialState);
 //console.log(checkReqs([['Computer Science 1']],takenCourses));

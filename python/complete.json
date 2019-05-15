@@ -658,7 +658,13 @@
          ]
       ]
    },
-   "Art":"Error",
+   "Art":   {
+      "Error":[
+         [
+
+         ]
+      ]
+  }	,
    "Art History":{
       "ART HIS 21":[
          [
@@ -777,7 +783,13 @@
          ]
       ]
    },
-   "Arts and Architecture":"Error",
+   "Arts and Architecture":   {
+      "Error":[
+         [
+
+         ]
+      ]
+  }	,
    "Arts Education":{
       "ARTS ED 20":[
          [
@@ -3589,7 +3601,13 @@
          ]
       ]
    },
-   "Civic Engagement":"Error",
+   "Civic Engagement":   {
+      "Error":[
+         [
+
+         ]
+      ]
+  }	,
    "Civil and Environmental Engineering":{
       "C&EE 19":[
          [
@@ -4998,7 +5016,13 @@
          ]
       ]
    },
-   "Dentistry":"Error",
+   "Dentistry":    {
+      "Error":[
+         [
+
+         ]
+      ]
+  }	,
    "Design / Media Arts":{
       "DESMA 9":[
          [
@@ -5210,7 +5234,13 @@
          ]
       ]
    },
-   "Disability Studies":"Error",
+   "Disability Studies":   {
+      "Error":[
+         [
+
+         ]
+      ]
+  }	,
    "Dutch":{
       "DUTCH 103C":[
          [
@@ -6231,7 +6261,13 @@
          ]
       ]
    },
-   "Education":"Error",
+   "Education":   {
+      "Error":[
+         [
+
+         ]
+      ]
+  }	,
    "Electrical and Computer Engineering":{
       "EC ENGR C143A":[
          [
@@ -7616,7 +7652,13 @@
          ]
       ]
    },
-   "Family Medicine":"Error",
+   "Family Medicine":   {
+      "Error":[
+         [
+
+         ]
+      ]
+  }	,
    "Filipino":{
       "FILIPNO 3":[
          [
@@ -8626,7 +8668,13 @@
          ]
       ]
    },
-   "Graduate Student Professional Development":"Error",
+   "Graduate Student Professional Development":   {
+      "Error":[
+         [
+
+         ]
+      ]
+  }	,
    "Greek":{
       "GREEK 3":[
          [
@@ -9500,7 +9548,13 @@
          ]
       ]
    },
-   "International Migration Studies":"Error",
+   "International Migration Studies":   {
+      "Error":[
+         [
+
+         ]
+      ]
+  }	,
    "Iranian":{
       "IRANIAN 1C":[
          [
@@ -10480,7 +10534,13 @@
          ]
       ]
    },
-   "Management":"Error",
+   "Management":   {
+      "Error":[
+         [
+
+         ]
+      ]
+  }	,
    "Management-Executive MBA":{
       "MGMTEX 414E":[
          [
@@ -11727,8 +11787,20 @@
          ]
       ]
    },
-   "Medical History":"Error",
-   "Medicine":"Error",
+   "Medical History":   {
+      "Error":[
+         [
+
+         ]
+      ]
+  }	,
+   "Medicine":   {
+      "Error":[
+         [
+
+         ]
+      ]
+  }	,
    "Microbiology, Immunology, and Molecular Genetics":{
       "MIMG 100L":[
          [
@@ -12211,7 +12283,13 @@
          ]
       ]
    },
-   "Music":"Error",
+   "Music":   {
+      "Error":[
+         [
+
+         ]
+      ]
+  }	,
    "Music Industry":{
       "MSC IND M103":[
          [
@@ -12854,7 +12932,13 @@
          ]
       ]
    },
-   "Pediatrics":"Error",
+   "Pediatrics":   {
+      "Error":[
+         [
+
+         ]
+      ]
+  }	,
    "Philosophy":{
       "PHILOS 4":[
          [
@@ -14280,7 +14364,13 @@
          ]
       ]
    },
-   "Public Affairs":"Error",
+   "Public Affairs":   {
+      "Error":[
+         [
+
+         ]
+      ]
+  }	,
    "Public Health":{
       "PUB HLT 150":[
          [
@@ -16233,7 +16323,13 @@
          ]
       ]
    },
-   "Urology":"Error",
+   "Urology":   {
+      "Error":[
+         [
+
+         ]
+      ]
+  }	,
    "Vietnamese":{
       "VIETMSE 3":[
          [
