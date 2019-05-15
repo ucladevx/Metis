@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 import re
 import json
 
-soup = BeautifulSoup(open(".\\econ_dars.html"), "html.parser")
+soup = BeautifulSoup(open(".\\cs_dars.html"), "html.parser")
 
 requirementStatus_ = re.compile('requirement Status_.*?rtabx_\d*')
 reqs = soup.find_all('div', attrs={'class': requirementStatus_})
@@ -42,7 +42,7 @@ for req in reqs:
     for s in sections:
         subreqBody = {}
         reqTitle = s.find('span', attrs={'class': 'subreqTitle'})
-        if len(reqTitle.contents) == 0:
+        if not reqTitle or len(reqTitle.contents) == 0:
             continue
         reqTitle = reqTitle.contents[0]
         
@@ -65,8 +65,8 @@ for req in reqs:
             classes = f.find_all('span', attrs={'class': 'course'})
             for c in classes:
                 cl = {}
-                cl['DEPT'] = c['department']
-                cl['NUM'] = c['number']
+                cl['DEPT'] = c['department'].strip(" *")
+                cl['NUM'] = c['number'].strip(" *")
                 subreqBody['FROM'].append(cl)
 
         # NOT FROM
@@ -76,24 +76,30 @@ for req in reqs:
             classes = nf.find_all('span', attrs={'class': 'course'})
             for c in classes:
                 cl = {}
-                cl['DEPT'] = c['department']
-                cl['NUM'] = c['number']
+                cl['DEPT'] = c['department'].strip(" *")
+                cl['NUM'] = c['number'].strip(" *")
                 subreqBody['NOT_FROM'].append(cl)
         major_reqs[str(title)][reqTitle] = subreqBody
     
 
         
 
-    # completedClasses = req.find_all('td', attrs={'class': 'course', 'aria-label': 'course'})
-    # for c in completedClasses:
-    #     info = c.string[::-1] # reverse string
-    #     arr = info.split(' ', 1)
-    #     arr.reverse()
-    #     for i in range(len(arr)):
-    #         arr[i] = arr[i][::-1]
-    #     print(" ".join(arr))
-    #     major_reqs[str(title)].append(arr)
+    completedClasses = req.find_all('td', attrs={'class': 'course', 'aria-label': 'course'})
+    major_reqs[str(title)]['COMPLETED'] = {}
+    major_reqs[str(title)]['COMPLETED']['completed'] = []
+    for c in completedClasses:
+        info = c.string[::-1] # reverse string
+        arr = info.split(' ', 1)
+        arr.reverse()
+        for i in range(len(arr)):
+            arr[i] = arr[i][::-1]
+        if not arr or len(arr) != 2:
+            continue
+        cl = {}
+        cl['DEPT'] = arr[0]
+        cl['NUM'] = arr[1]
+        major_reqs[str(title)]['COMPLETED']['completed'].append(cl)
 
 # print(major_reqs)
-with open('econ_reqs.json', 'w') as fp:
+with open('cs_reqs.json', 'w') as fp:
     json.dump(major_reqs, fp)
