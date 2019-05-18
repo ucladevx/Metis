@@ -27,92 +27,6 @@ router.get('/initDB', function(req, res, next){
 
 });
 
-
-router.get('/majors', async function(req,res,next){
-	const dbase = dbHelpers.getDb();
-	const db = dbase.db("Metis");
-	const departments = db.collection("Departments");
-	var majorList = [];
-	
-	try{
-		var objectArray = await departments.find().toArray();
-		for(var object of objectArray){
-			majorList.push(object["department_id"]);
-		}
-		res.send(majorList);
-		
-	} catch(error){
-		console.log(error);
-		res.send(error);
-	}
-
-});
-
-/*
-{
-	"department": "Computer Science",
-	"takenCourses": ["Computer Science 31","Computer Science 32","Computer Science 33"]
-}
-*/
-
-//expects "department" and "takenCourses" in req.body
-router.get('/validMajorClasses', async function(req,res,next){
-	const dbase = dbHelpers.getDb();
-	const db = dbase.db("Metis");
-	const courses = db.collection("Course");
-	var validClasses = {};
-
-
-	var major = req.body.department;
-	var takenCourses = req.body.takenCourses;
-	try{
-		var objectArray = await courses.find({"department":major}).toArray();
-	} catch(error){
-		console.log(error);
-		res.send(error);
-	}
-	var output = requisiteHelpers.validClasses(takenCourses,objectArray);
-	//console.log(output);
-	//res.status(200).json(output);
-	res.send(output);
-	return;
-
-});
-
-router.get('/search', async function(req,res,next){
-
-	const dbase = dbHelpers.getDb();
-	const db = dbase.db("Metis");
-	const courses = db.collection("Course");
-
-	var department = req.body.department;
-
-	var courseList = [];
-
-	try{
-		var objectArray = await courses.find({"department":department}).toArray();
-	} catch(error){
-		console.log(error);
-		//res.send(error);
-	}
-	for(var course of objectArray){
-		courseList.push(course["class_id"]);
-	}
-	var returnObject = {"department": courseList};
-	console.log(returnObject);
-	res.send(returnObject);
-
-});
-
-
-/*
-dbHelpers.initDb(function(err){
-	search("Mathematics");
-	return;
-});
-*/
-module.exports = router;
-
 /*
 router.get('/checkRequisites', function(req,res,next){
 	const dbase = dbHelpers.getDb();
@@ -150,3 +64,55 @@ router.get('/checkRequisites', function(req,res,next){
 	return;
 });
 */
+
+router.get('/majors', async function(req,res,next){
+	const dbase = dbHelpers.getDb();
+	const db = dbase.db("Metis");
+	const departments = db.collection("Departments");
+	var majorList = [];
+
+	try{
+		var objectArray = await departments.find().toArray();
+		for(var object of objectArray){
+			majorList.push(object["department_id"]);
+		}
+		res.send(majorList);
+
+	} catch(error){
+		console.log(error);
+		res.send(error);
+	}
+
+});
+
+async function validClasses(major,takenCourses){
+	const dbase = dbHelpers.getDb();
+	const db = dbase.db("Metis");
+	const courses = db.collection("Course");
+	var validClasses = {};
+
+	var objectArray = await courses.find({"department":major}).toArray();
+	for(var courseObject of objectArray){
+		var courseID = courseObject["class_id"];
+		var coursePathways = courseObject["prerequisites"];
+		//console.log(coursePathways);
+		var checkedPathways = requisiteHelpers.checkPathways(takenCourses,coursePathways);
+
+		validClasses[courseID] = checkedPathways;
+
+		//validClasses[courseID] = 1;
+	}
+	console.log(validClasses);
+};
+
+// dbHelpers.initDb(function(err){
+// 	validClasses("Computer Science",['Computer Science 31','Computer Science 32','Computer Science 33']);
+// 	return;
+// });
+
+
+//parameter: array of class_ids taken
+//route for old function of checking if user can take a certain class
+
+//route for new function given major, what classes user can take from the pool. Returns json of all class names, true if can, list of classes to take that class if not. JSON of class_ids: {bool, [string]}
+module.exports = router;
