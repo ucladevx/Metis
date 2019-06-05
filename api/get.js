@@ -83,15 +83,18 @@ router.get('/validMajorClasses', async function(req,res,next){
 
 });
 
-
-
-async function initDeptTiles(department){
+/* Route parameter:
+{
+	"department": "Computer Science"
+}
+*/
+router.get('/initDeptTiles', async function(req,res,next){
 
 	const dbase = dbHelpers.getDb();
 	const db = dbase.db("Metis");
 	const courses = db.collection("Course");
 
-	var department = department;
+	var department = req.body.department;
 
 	var courseList = [];
 
@@ -108,11 +111,10 @@ async function initDeptTiles(department){
 
 	var returnObject = convertHelpers.convertFormat(courseList);
 	console.log(returnObject);
-	return returnObject;
+	res.send(returnObject);
 
-};
+});
 
-initDeptTiles("Computer Science");
 /*
 dbHelpers.initDb(function(err){
 	search("Mathematics");
