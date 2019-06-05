@@ -14,9 +14,6 @@ const userSchema = mongoose.model('User');
 // functions called by API endpoints
 const helpers = require('../helpers/functions');
 
-// acronym mapping
-const mapping = require('../utils/acronym_mapping.json')
-
 require('../schemas/PreRequisites.js');
 const PreRequisitesSchema = mongoose.model('PreRequisites');
 
@@ -67,21 +64,6 @@ router.post('/post-classlist', function(req, res, next) {
 //   }
 //   res.send(classes);
 // });
-
-function convertNames(data) {
-  var obj = data.body.classes;
-  var classes = []
-  for (let cls in obj) {
-    cls = obj[cls];
-    let department = mapping[cls.dept];
-    if (!department) {
-      console.log("ERROR: " + cls.dept + " is not a valid department name.");
-    }
-    let fullName = department + " " + cls.name;
-    classes.push(fullName);
-  }
-  return classes;
-}
 
 const maxClasses = {
 	classes: [
