@@ -58,6 +58,7 @@ router.get('/majors', async function(req,res,next){
 
 //expects "department" and "takenCourses" in req.body
 router.get('/validMajorClasses', async function(req,res,next){
+
 	const dbase = dbHelpers.getDb();
 	const db = dbase.db("Metis");
 	const courses = db.collection("Course");
@@ -72,7 +73,16 @@ router.get('/validMajorClasses', async function(req,res,next){
 		console.log(error);
 		res.send(error);
 	}
-	var output = requisiteHelpers.validClasses(takenCourses,objectArray);
+	var output = {};
+	output.requirementsLeft = requisiteHelpers.validClasses(takenCourses,objectArray);
+
+	let canTake = [];
+	for (cls in output.requirementsLeft) {
+		console.log(cls);
+		if (output.requirementsLeft[cls].length === 0)
+			canTake.push(cls);
+	}
+	output.canTake = canTake;
 	//console.log(output);
 	//res.status(200).json(output);
 	res.send(output);
