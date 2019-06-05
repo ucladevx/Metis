@@ -67,14 +67,14 @@ router.get('/validMajorClasses', async function(req,res,next){
 	var major = req.body.department;
 	var takenCourses = req.body.takenCourses;
 	try{
-		var objectArray = await courses.find({"department":major}).toArray();
+		var courseArray = await courses.find({"department":major}).toArray();
 	} catch(error){
 		console.log(error);
 		res.send(error);
 	}
-	var output = requisiteHelpers.validClasses(takenCourses,objectArray);
+	var output = requisiteHelpers.validClasses(takenCourses,courseArray);
 
-	
+	console.log(courseArray);
 
 	//console.log(output);
 	//res.status(200).json(output);
