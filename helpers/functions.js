@@ -1,4 +1,8 @@
 var clusters = require('../python/clustering/clusters.json');
+
+// acronym mapping
+const mapping = require('../utils/acronym_mapping.json')
+
 var classStringMap = {
   "COM SCI" : "Computer Science",
   "PHYS" : "Physics",
@@ -53,4 +57,20 @@ function findRecommended(classesTaken){
   return recommendations;
 }
 
-module.exports = {hello, findRecommended}
+function convertNames(data) {
+  var obj = data.classes;
+  var classes = []
+  for (let cls in obj) {
+    cls = obj[cls];
+    let department = mapping[cls.dept];
+    if (!department) {
+      console.log("ERROR: " + cls.dept + " is not a valid department name.");
+    }
+    let fullName = department + " " + cls.name;
+    classes.push(fullName);
+  }
+  return classes;
+}
+
+
+module.exports = {hello, findRecommended, convertNames}
