@@ -7,7 +7,7 @@ const requisiteHelpers = require('../helpers/checkRequisites.js');
 const dbHelpers = require('../helpers/db.js');
 
 const helperFunctions = require('../helpers/functions');
-const convertHelpers = require('../helpers/courseListToTiles');
+// const convertHelpers = require('../helpers/courseListToTiles');
 
 // reverse major names mapping
 const reverseMap = require('../utils/reverse_acronym_mapping')
@@ -39,14 +39,14 @@ router.get('/majors', async function(req,res,next){
 	const db = dbase.db("Metis");
 	const departments = db.collection("Departments");
 	var majorList = [];
-	
+
 	try{
 		var objectArray = await departments.find().toArray();
 		for(var object of objectArray){
 			majorList.push(object["department_id"]);
 		}
 		res.send(majorList);
-		
+
 	} catch(error){
 		console.log(error);
 		res.send(error);
@@ -113,7 +113,7 @@ router.get('/validMajorClasses', async function(req,res,next){
 		let deptConverted = reverseMap[dept];
 		let id = cls.split(" ");
 		id = id[id.length - 1];
-		let finalName = deptConverted + " " + id; 
+		let finalName = deptConverted + " " + id;
 
 		newTakenCourses.push(finalName);
 	}
@@ -151,38 +151,6 @@ router.get('/validMajorClasses', async function(req,res,next){
 	//res.status(200).json(output);
 	res.send(returnObject);
 	return;
-
-});
-
-/* Route parameter:
-{
-	"department": "Computer Science"
-}
-*/
-router.get('/initDeptTiles', async function(req,res,next){
-
-	const dbase = dbHelpers.getDb();
-	const db = dbase.db("Metis");
-	const courses = db.collection("Course");
-
-	var department = req.body.department;
-
-	var courseList = [];
-
-	try{
-		var objectArray = await courses.find({"department":department}).toArray();
-	} catch(error){
-		console.log(error);
-		//res.send(error);
-	}
-	for(var course of objectArray){
-		courseList.push(course["class_id"]);
-	}
-	//var returnObject = {"department": courseList};
-
-	var returnObject = convertHelpers.convertFormat(courseList);
-	console.log(returnObject);
-	res.send(returnObject);
 
 });
 
@@ -239,81 +207,81 @@ router.get('/checkRequisites', function(req,res,next){
 
 REQUEST BODY for validMajorClasses
 
-{  
+{
    "department":"Computer Science",
-   "takenCourses":{  
-      "classes":{  
-         "c1":{  
+   "takenCourses":{
+      "classes":{
+         "c1":{
             "id":"c1",
             "dept":"COM SCI",
             "name":"1"
          },
-         "c2":{  
+         "c2":{
             "id":"c2",
             "dept":"COM SCI",
             "name":"31"
          },
-         "c3":{  
+         "c3":{
             "id":"c3",
             "dept":"ENGCOMP",
             "name":"3"
          },
-         "c4":{  
+         "c4":{
             "id":"c4",
             "dept":"MATH",
             "name":"31A"
          },
-         "c5":{  
+         "c5":{
             "id":"c5",
             "dept":"PHYSICS",
             "name":"1B"
          },
-         "c6":{  
+         "c6":{
             "id":"c6",
             "dept":"PHYSICS",
             "name":"1C"
          }
       },
-      "quarters":{  
-         "search":{  
+      "quarters":{
+         "search":{
             "id":"search",
             "title":"To Do",
-            "classIds":[  
+            "classIds":[
                "c5",
                "c6"
             ]
          },
-         "q1":{  
+         "q1":{
             "id":"q1",
             "title":"To Do",
-            "classIds":[  
+            "classIds":[
                "c1",
                "c2"
             ]
          },
-         "q2":{  
+         "q2":{
             "id":"q2",
             "title":"To Do",
-            "classIds":[  
+            "classIds":[
                "c4"
             ]
          },
-         "q3":{  
+         "q3":{
             "id":"q3",
             "title":"To Do",
-            "classIds":[  
+            "classIds":[
 
             ]
          },
-         "q4":{  
+         "q4":{
             "id":"q4",
             "title":"To Do",
-            "classIds":[  
+            "classIds":[
                "c3"
             ]
          }
       },
-      "quarterOrder":[  
+      "quarterOrder":[
          "q1",
          "q2",
          "q3",

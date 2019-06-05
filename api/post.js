@@ -20,6 +20,8 @@ const PreRequisitesSchema = mongoose.model('PreRequisites');
 require('../schemas/ClassList.js');
 const ClassListSchema = mongoose.model('ClassList');
 
+const convertHelpers = require('../helpers/courseListToTiles');
+
 router.post('/test/', (req,res)=> {
   res.send("Welcome, " + req.body.name);
 });
@@ -101,6 +103,37 @@ router.post('/find-recommended', function(req, res, next) {
 //   });
 // });
 
+/* Route parameter:
+{
+	"department": "Computer Science"
+}
+*/
+router.post('/initDeptTiles', async function(req,res,next){
+
+	const dbase = dbHelpers.getDb();
+	const db = dbase.db("Metis");
+	const courses = db.collection("Course");
+
+	var department = req.body.department;
+
+	var courseList = [];
+
+	try{
+		var objectArray = await courses.find({"department":department}).toArray();
+  } catch(error){
+		console.log(error);
+	}
+	for(var course of objectArray){
+		courseList.push(course["class_id"]);
+	}
+	//var returnObject = {"department": courseList};
+
+	var returnObject = convertHelpers.convertFormat(courseList);
+	console.log(returnObject);
+	res.send(returnObject);
+
+});
+
 // POST a User schema
 router.post('/user', function(req, res, next){
 
@@ -119,13 +152,12 @@ router.post('/user', function(req, res, next){
      userDB.updateOne(
         { id :  req.body.id },
         { $set: {
-                name: req.body.name, 
-                email: req.body.email, 
+                name: req.body.name,
+                email: req.body.email,
                 major: req.body.major,
                 startTerm: req.body.startTerm,
                 takenCourses: req.body.takenCourses
-
-              } 
+              }
         },
         { upsert: true }
      ).then((r) => {

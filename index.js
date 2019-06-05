@@ -28,7 +28,7 @@ app.get('/', (req,res) => {
 
 // Connect to database, on success start server
 db.initDb(function(err){
-  app.listen(process.env.PORT || 3000, () => {
+  app.listen(process.env.PORT || 3001, () => {
   	console.log("server listening");
   });
 });
