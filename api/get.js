@@ -9,6 +9,9 @@ const dbHelpers = require('../helpers/db.js');
 const helperFunctions = require('../helpers/functions');
 const convertHelpers = require('../helpers/courseListToTiles');
 
+// reverse major names mapping
+const reverseMap = require('../utils/reverse_acronym_mapping')
+
 router.get('/test/:name', (req,res  )=> {
   res.send("Welcome, " + req.params.name);
 });
@@ -70,7 +73,7 @@ router.get('/validMajorClasses', async function(req,res,next){
 	var major = req.body.department;
 	var takenCourses = helperFunctions.convertNames(req.body.takenCourses);
 	try{
-		var courseArray = await courses.find({"department":major}).toArray();
+		var objectArray = await courses.find({"department":major}).toArray();
 	} catch(error){
 		console.log(error);
 		res.send(error);
@@ -87,10 +90,66 @@ router.get('/validMajorClasses', async function(req,res,next){
 	}
 	output.canTake = canTake;
 
+	let canTakeUpdated = []
+	for (cls in canTake) {
+		cls = canTake[cls];
+		let id = cls.split(" ");
+		id = id[id.length - 1];
+		id = id.replace(/[A-Z]/g, '');
+		id = parseInt(id);
+		if (id < 200)
+			canTakeUpdated.push(cls);
+	}
 
+
+	var filteredClasses = canTakeUpdated;
+	var recommendedClasses = [];
+	var newTakenCourses = [];
+	for (cls in takenCourses) {
+		cls = takenCourses[cls];
+		let lastIndex = cls.lastIndexOf(" ");
+		let dept = cls.substring(0, lastIndex);
+
+		let deptConverted = reverseMap[dept];
+		let id = cls.split(" ");
+		id = id[id.length - 1];
+		let finalName = deptConverted + " " + id; 
+
+		newTakenCourses.push(finalName);
+	}
+	console.log(newTakenCourses)
+	console.log(filteredClasses)
+
+	var abbrevDept = newTakenCourses[0].split(" ");
+	abbrevDept = abbrevDept.splice(0,abbrevDept.length - 1).join(" ")
+	console.log(abbrevDept)
+	for(var course of newTakenCourses){
+
+		try{
+			var cluster = [];
+			for(object of objectArray){
+				if (object["class_id"]==course){
+					cluster = object["similar_classes"];
+					console.log(cluster);
+				}
+
+			}
+			for (var clusterCourseNum of cluster){
+				var clusterCourseName = abbrevDept + " " + clusterCourseNum;
+
+				if (filteredClasses.includes(clusterCourseName) && !newTakenCourses.includes(clusterCourseName))
+					recommendedClasses.push(clusterCourseName);
+			}
+		} catch (e){
+			console.log(e);
+		}
+
+	}
+	output.recommended = recommendedClasses;
+	var returnObject = convertHelpers.convertFormat(output.recommended);
 	//console.log(output);
 	//res.status(200).json(output);
-	res.send(output);
+	res.send(returnObject);
 	return;
 
 });
