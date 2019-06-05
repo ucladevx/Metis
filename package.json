@@ -4,7 +4,8 @@
   "description": "BruinHub Backend",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
@@ -20,6 +21,7 @@
     "body-parser": "^1.18.3",
     "child_process": "^1.0.2",
     "cors": "^2.8.4",
+    "dotenv": "^8.0.0",
     "express": "^4.16.4",
     "mongoose": "^5.3.6",
     "python-shell": "^1.0.6"
