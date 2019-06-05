@@ -5,7 +5,9 @@ var router = express.Router();
 // functions called by API endpoints
 const requisiteHelpers = require('../helpers/checkRequisites.js');
 const dbHelpers = require('../helpers/db.js');
+
 const helperFunctions = require('../helpers/functions');
+const convertHelpers = require('../helpers/courseListToTiles');
 
 router.get('/test/:name', (req,res  )=> {
   res.send("Welcome, " + req.params.name);
@@ -83,6 +85,7 @@ router.get('/validMajorClasses', async function(req,res,next){
 			canTake.push(cls);
 	}
 	output.canTake = canTake;
+
 	//console.log(output);
 	//res.status(200).json(output);
 	res.send(output);
@@ -90,7 +93,12 @@ router.get('/validMajorClasses', async function(req,res,next){
 
 });
 
-router.get('/search', async function(req,res,next){
+/* Route parameter:
+{
+	"department": "Computer Science"
+}
+*/
+router.get('/initDeptTiles', async function(req,res,next){
 
 	const dbase = dbHelpers.getDb();
 	const db = dbase.db("Metis");
@@ -109,12 +117,13 @@ router.get('/search', async function(req,res,next){
 	for(var course of objectArray){
 		courseList.push(course["class_id"]);
 	}
-	var returnObject = {"department": courseList};
+	//var returnObject = {"department": courseList};
+
+	var returnObject = convertHelpers.convertFormat(courseList);
 	console.log(returnObject);
 	res.send(returnObject);
 
 });
-
 
 /*
 dbHelpers.initDb(function(err){
@@ -123,6 +132,7 @@ dbHelpers.initDb(function(err){
 });
 */
 module.exports = router;
+
 
 /*
 router.get('/checkRequisites', function(req,res,next){
