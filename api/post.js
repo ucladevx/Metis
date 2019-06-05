@@ -50,6 +50,21 @@ router.post('/post-classlist', function(req, res, next) {
   res.send("Success");
 });
 
+// router.post('/convertnames', function(req, res, next) {
+//   var obj = req.body.classes;
+//   var classes = []
+//   for (let cls in obj) {
+//     cls = obj[cls];
+//     let department = mapping[cls.dept];
+//     if (!department) {
+//       console.log("ERROR: " + cls.dept + " is not a valid department name.");
+//     }
+//     let fullName = department + " " + cls.name;
+//     classes.push(fullName);
+//   }
+//   res.send(classes);
+// });
+
 const maxClasses = {
 	classes: [
     [

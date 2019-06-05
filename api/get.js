@@ -5,6 +5,8 @@ var router = express.Router();
 // functions called by API endpoints
 const requisiteHelpers = require('../helpers/checkRequisites.js');
 const dbHelpers = require('../helpers/db.js');
+
+const helperFunctions = require('../helpers/functions');
 const convertHelpers = require('../helpers/courseListToTiles');
 
 router.get('/test/:name', (req,res  )=> {
@@ -58,6 +60,7 @@ router.get('/majors', async function(req,res,next){
 
 //expects "department" and "takenCourses" in req.body
 router.get('/validMajorClasses', async function(req,res,next){
+
 	const dbase = dbHelpers.getDb();
 	const db = dbase.db("Metis");
 	const courses = db.collection("Course");
@@ -65,16 +68,25 @@ router.get('/validMajorClasses', async function(req,res,next){
 
 
 	var major = req.body.department;
-	var takenCourses = req.body.takenCourses;
+	var takenCourses = helperFunctions.convertNames(req.body.takenCourses);
 	try{
 		var courseArray = await courses.find({"department":major}).toArray();
 	} catch(error){
 		console.log(error);
 		res.send(error);
 	}
-	var output = requisiteHelpers.validClasses(takenCourses,courseArray);
 
-	console.log(courseArray);
+	var output = {};
+	output.requirementsLeft = requisiteHelpers.validClasses(takenCourses,objectArray);
+
+	let canTake = [];
+	for (cls in output.requirementsLeft) {
+		console.log(cls);
+		if (output.requirementsLeft[cls].length === 0)
+			canTake.push(cls);
+	}
+	output.canTake = canTake;
+
 
 	//console.log(output);
 	//res.status(200).json(output);
@@ -160,4 +172,95 @@ router.get('/checkRequisites', function(req,res,next){
 		})
 	return;
 });
+*/
+
+
+
+/*
+
+REQUEST BODY for validMajorClasses
+
+{  
+   "department":"Computer Science",
+   "takenCourses":{  
+      "classes":{  
+         "c1":{  
+            "id":"c1",
+            "dept":"COM SCI",
+            "name":"1"
+         },
+         "c2":{  
+            "id":"c2",
+            "dept":"COM SCI",
+            "name":"31"
+         },
+         "c3":{  
+            "id":"c3",
+            "dept":"ENGCOMP",
+            "name":"3"
+         },
+         "c4":{  
+            "id":"c4",
+            "dept":"MATH",
+            "name":"31A"
+         },
+         "c5":{  
+            "id":"c5",
+            "dept":"PHYSICS",
+            "name":"1B"
+         },
+         "c6":{  
+            "id":"c6",
+            "dept":"PHYSICS",
+            "name":"1C"
+         }
+      },
+      "quarters":{  
+         "search":{  
+            "id":"search",
+            "title":"To Do",
+            "classIds":[  
+               "c5",
+               "c6"
+            ]
+         },
+         "q1":{  
+            "id":"q1",
+            "title":"To Do",
+            "classIds":[  
+               "c1",
+               "c2"
+            ]
+         },
+         "q2":{  
+            "id":"q2",
+            "title":"To Do",
+            "classIds":[  
+               "c4"
+            ]
+         },
+         "q3":{  
+            "id":"q3",
+            "title":"To Do",
+            "classIds":[  
+
+            ]
+         },
+         "q4":{  
+            "id":"q4",
+            "title":"To Do",
+            "classIds":[  
+               "c3"
+            ]
+         }
+      },
+      "quarterOrder":[  
+         "q1",
+         "q2",
+         "q3",
+         "q4"
+      ]
+   }
+}
+
 */
