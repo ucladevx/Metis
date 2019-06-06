@@ -6,12 +6,6 @@ var router = express.Router();
 const requisiteHelpers = require('../helpers/checkRequisites.js');
 const dbHelpers = require('../helpers/db.js');
 
-const helperFunctions = require('../helpers/functions');
-// const convertHelpers = require('../helpers/courseListToTiles');
-
-// reverse major names mapping
-const reverseMap = require('../utils/reverse_acronym_mapping')
-
 router.get('/test/:name', (req,res  )=> {
   res.send("Welcome, " + req.params.name);
 });

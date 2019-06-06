@@ -20,7 +20,11 @@ const PreRequisitesSchema = mongoose.model('PreRequisites');
 require('../schemas/ClassList.js');
 const ClassListSchema = mongoose.model('ClassList');
 
+// reverse major names mapping
+const reverseMap = require('../utils/reverse_acronym_mapping')
+const helperFunctions = require('../helpers/functions');
 const convertHelpers = require('../helpers/courseListToTiles');
+const requisiteHelpers = require('../helpers/checkRequisites.js');
 
 router.post('/test/', (req,res)=> {
   res.send("Welcome, " + req.body.name);
@@ -128,7 +132,7 @@ router.post('/initDeptTiles', async function(req,res,next){
 		courseList.push(course["class_id"]);
 	}
 
-	var returnObject = convertHelpers.convertFormat(courseList);
+	var returnObject = convertHelpers.convertFormat(courseList, 1);
 	console.log(returnObject);
 	res.send(returnObject);
 
@@ -344,11 +348,39 @@ router.post('/validMajorClasses', async function(req,res,next){
 		} catch (e){
 			console.log(e);
 		}
-
 	}
+
 	output.recommended = recommendedClasses;
-	var returnObject = convertHelpers.convertFormat(output.recommended);
-	//console.log(output);
+	var classes_ML = convertHelpers.convertFormat(output.recommended, 1);
+  var classes_normal = convertHelpers.convertFormat(output.canTake, 1 + output.recommended.length);
+
+  var returnObject = {
+    "search": {
+        "id": "search",
+        "title": "temporary",
+        "classIds": []
+    },
+    "classes": {
+        "c1": {
+            "id": "c1",
+            "dept": "COM SCI",
+            "name": "32"
+        }
+    }
+  }
+
+  for(var i = 0; i < classes_ML.search.classIds.length; i++){
+    var currID = classes_ML.search.classIds[i];
+    returnObject.search.classIds.push(currID + "_ML");
+    returnObject.classes[currID + "_ML"] = classes_ML.classes[currID]
+  }
+
+  for(var i = 0; i < classes_normal.search.classIds.length; i++){
+    var currID = classes_normal.search.classIds[i];
+    returnObject.search.classIds.push(currID);
+    returnObject.classes[currID] = classes_normal.classes[currID]
+  }
+  console.log(returnObject)
 	//res.status(200).json(output);
 	res.send(returnObject);
 	return;

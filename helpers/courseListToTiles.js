@@ -1,8 +1,8 @@
-function convertFormat(classList){
+function convertFormat(classList, startID){
 	var output = {};
 	var classes = {};
 	var idArray = [];
-	var id = 1;
+	var id = startID;
 	for (var courseName of classList){
 		var idObject = {};
 		var cid = "c" + id.toString();
