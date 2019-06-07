@@ -1,11 +1,11 @@
-function convertFormat(classList, startID){
+function convertFormat(classList, startID, txt){
 	var output = {};
 	var classes = {};
 	var idArray = [];
 	var id = startID;
 	for (var courseName of classList){
 		var idObject = {};
-		var cid = "c" + id.toString();
+		var cid = "c" + id.toString() + txt;
 		idArray.push(cid);
 		id +=1;
 		var arr = courseName.split(" ");

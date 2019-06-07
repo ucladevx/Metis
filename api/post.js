@@ -132,7 +132,7 @@ router.post('/initDeptTiles', async function(req,res,next){
 		courseList.push(course["class_id"]);
 	}
 
-	var returnObject = convertHelpers.convertFormat(courseList, 1);
+	var returnObject = convertHelpers.convertFormat(courseList, 1, "");
 	console.log(returnObject);
 	res.send(returnObject);
 
@@ -346,8 +346,8 @@ router.post('/validMajorClasses', async function(req,res,next){
 	}
 
 	output.recommended = recommendedClasses;
-	var classes_ML = convertHelpers.convertFormat(output.recommended, 1);
-  var classes_normal = convertHelpers.convertFormat(output.canTake, 1 + output.recommended.length);
+	var classes_ML = convertHelpers.convertFormat(output.recommended, 1, "_ML");
+  var classes_normal = convertHelpers.convertFormat(output.canTake, 1 + output.recommended.length, "");
 
   var returnObject = {
     "search": {
