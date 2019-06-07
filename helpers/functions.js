@@ -61,21 +61,26 @@ function convertNames(data) {
   var obj = data.classes;
   var classes = []
   for (let q in data.quarters){
-    var cls_list = data.quarters[q].classIds
-    for(var i = 0; i < cls_list.length; i++){
-      var cls_id = cls_list[i]
-      var cls = data.classes[cls_id];
+    if(q != 'search'){
+      var cls_list = data.quarters[q].classIds
 
-      let department = mapping[cls.dept];
-      if (!department) {
-        console.log("ERROR: " + cls.dept + " is not a valid department name.");
+      for(var i = 0; i < cls_list.length; i++){
+        var cls_id = cls_list[i]
+        var cls = data.classes[cls_id];
+
+        let department = mapping[cls.dept];
+        if (!department) {
+          console.log("ERROR: " + cls.dept + " is not a valid department name.");
+        }
+        let fullName = department + " " + cls.name;
+        classes.push(fullName);
+
       }
-      let fullName = department + " " + cls.name;
-      classes.push(fullName);
-
     }
+
   }
 
+  console.log(classes)
   return classes;
 }
 

@@ -308,7 +308,7 @@ router.post('/validMajorClasses', async function(req,res,next){
 	var filteredClasses = canTakeUpdated;
 	var recommendedClasses = [];
 	var newTakenCourses = [];
-
+  // console.log(takenCourses)
 	for (cls in takenCourses) {
 		cls = takenCourses[cls];
 		let lastIndex = cls.lastIndexOf(" ");
