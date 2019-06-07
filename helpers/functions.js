@@ -22,7 +22,7 @@ function findRecommended(classesTaken){
     {
       var rec = new Object();
       rec.class_taken = classesTaken.classes[i][j];
-      var deptRecs = clusters[classStringMap[rec.class_taken.dept]] 
+      var deptRecs = clusters[classStringMap[rec.class_taken.dept]]
       var found = false;
       for (var k = 0; !found && deptRecs["lowerdiv"] && k < deptRecs["lowerdiv"].length; k++)
       {
@@ -60,15 +60,22 @@ function findRecommended(classesTaken){
 function convertNames(data) {
   var obj = data.classes;
   var classes = []
-  for (let cls in obj) {
-    cls = obj[cls];
-    let department = mapping[cls.dept];
-    if (!department) {
-      console.log("ERROR: " + cls.dept + " is not a valid department name.");
+  for (let q in data.quarters){
+    var cls_list = data.quarters[q].classIds
+    for(var i = 0; i < cls_list.length; i++){
+      var cls_id = cls_list[i]
+      var cls = data.classes[cls_id];
+
+      let department = mapping[cls.dept];
+      if (!department) {
+        console.log("ERROR: " + cls.dept + " is not a valid department name.");
+      }
+      let fullName = department + " " + cls.name;
+      classes.push(fullName);
+
     }
-    let fullName = department + " " + cls.name;
-    classes.push(fullName);
   }
+
   return classes;
 }
 

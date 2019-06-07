@@ -275,7 +275,6 @@ router.post('/validMajorClasses', async function(req,res,next){
 	const courses = db.collection("Course");
 	var validClasses = {};
 
-
 	var major = req.body.department;
 	var takenCourses = helperFunctions.convertNames(req.body.takenCourses);
 	try{
@@ -290,7 +289,6 @@ router.post('/validMajorClasses', async function(req,res,next){
 
 	let canTake = [];
 	for (cls in output.requirementsLeft) {
-		console.log(cls);
 		if (output.requirementsLeft[cls].length === 0)
 			canTake.push(cls);
 	}
@@ -310,6 +308,7 @@ router.post('/validMajorClasses', async function(req,res,next){
 	var filteredClasses = canTakeUpdated;
 	var recommendedClasses = [];
 	var newTakenCourses = [];
+
 	for (cls in takenCourses) {
 		cls = takenCourses[cls];
 		let lastIndex = cls.lastIndexOf(" ");
@@ -322,12 +321,9 @@ router.post('/validMajorClasses', async function(req,res,next){
 
 		newTakenCourses.push(finalName);
 	}
-	console.log(newTakenCourses)
-	console.log(filteredClasses)
 
 	var abbrevDept = newTakenCourses[0].split(" ");
-	abbrevDept = abbrevDept.splice(0,abbrevDept.length - 1).join(" ")
-	console.log(abbrevDept)
+	abbrevDept = abbrevDept.splice(0,abbrevDept.length - 1).join(" ");
 	for(var course of newTakenCourses){
 
 		try{
@@ -335,7 +331,6 @@ router.post('/validMajorClasses', async function(req,res,next){
 			for(object of objectArray){
 				if (object["class_id"]==course){
 					cluster = object["similar_classes"];
-					console.log(cluster);
 				}
 
 			}
@@ -380,8 +375,6 @@ router.post('/validMajorClasses', async function(req,res,next){
     returnObject.search.classIds.push(currID);
     returnObject.classes[currID] = classes_normal.classes[currID]
   }
-  console.log(returnObject)
-	//res.status(200).json(output);
 	res.send(returnObject);
 	return;
 
