@@ -24,8 +24,10 @@ import time
 import openpyxl
 import json
 import pymongo
+import sys
 
 from bs4 import BeautifulSoup
+from pymongo import IndexModel, ASCENDING, DESCENDING
 import requests
 
 from sys import platform
@@ -33,6 +35,9 @@ from sys import platform
 # External Files
 from CCLE_professor_parser import CCLEHTMLParser
 import Dependencies
+
+# only use computer science as the major to see if scraping is working
+testing = False
 
 # ********************************************************************************
 # Chrome Driver Helpers
@@ -69,30 +74,33 @@ def getHTML(element, attributes):
     page_response = requests.get(driver.current_url, timeout=5)
 
     # Get Lower Div Courses
-    # Create a soup
     soup = BeautifulSoup(page_response.content, "html.parser")
     data = soup.find(element, attributes)
-    # print("********************")
-    return data
-    # print("********************")
 
-# Store the driver as a global
+    return data
+
+# Store the driver as a global variable
 driver = ""
 
 # ********************************************************************************
 # Scrape Schedule of Classes
 def sched_scrape():
-    global driver
+    global driver, testing
 
     majorMap = {}   # store pre-reqs for each major
-    with open('major_list.json') as json_file:
-        data = json.load(json_file)
-    #majors = data["majors"]
-    majors = ['Asian']
+    majors = []
+
+    if testing:
+        majors = ['Computer Science']
+    else:
+        # TODO: go through each dept in client.Metis.Departments
+        with open('major_list.json') as json_file:
+            data = json.load(json_file)
+        majors = data["majors"]
+
     #with open('complete10.json') as json_file:
     #    majorMap = json.load(json_file)
 
-    #majors = ['Communication', "Community Health Sciences",'Comparative Literature']
     for major in majors:
         if major in majorMap:
             if majorMap[major] != "Error":
@@ -104,6 +112,8 @@ def sched_scrape():
             # Go to schedule of classes page
             url = "https://sa.ucla.edu/ro/public/soc"
             driver.get(url)
+
+            # TODO: select term from dropdown, difficult to see the year and pick the right term
 
             # click on dropdown input
             subject_area_input = check_exists_by_xpath("""//*[@id="select_filter_subject"]""", driver)
@@ -159,7 +169,6 @@ def sched_scrape():
 
                 time.sleep(15)
 
-
                 # Click on "lec1", "lab1", etc. to open new tab
                 sections = driver.find_elements_by_xpath("""//*[@class="hide-small"]""")    # get elements that hold the anchor tags
                 # for each element found, get the anchor tag child
@@ -205,7 +214,6 @@ def sched_scrape():
                         #driver.close()
                         #driver.switch_to.window(driver.window_handles[0])
 
-
                 # Get the current page's HTML
                 page_response = requests.get(driver.current_url, timeout=5)
 
@@ -227,13 +235,18 @@ def sched_scrape():
 
 def descriptions_scrape():
 
-    global driver
+    global driver, client, testing
+    db = client.Scrape.Classes
 
-    # TODO: get all major names in a file and read from that
-    # with open('major_list.json') as json_file:
-    #     data = json.load(json_file)
-    # majors = data["majors"]
-    majors = ["Computer Science"]
+    majors = []
+
+    if testing:
+        majors = ['Computer Science']
+    else:
+        # TODO: go through each dept in client.Metis.Departments
+        with open('major_list.json') as json_file:
+            data = json.load(json_file)
+        majors = data["majors"]
 
     for major in majors:
         url = "https://www.registrar.ucla.edu/Academics/Course-Descriptions"
@@ -249,7 +262,6 @@ def descriptions_scrape():
         except:
             print("* " + major)
 
-
         # Get the default course set (usually Lower Divs come up first)
         extract_descriptions(major, "lower")
         time.sleep(1)
@@ -257,6 +269,10 @@ def descriptions_scrape():
         time.sleep(1)
         extract_descriptions(major, "graduate")
         time.sleep(1)
+
+    # index composite key of (department, number)
+    index1 = IndexModel([("department", ASCENDING), ("number", ASCENDING)], name="ClassesIndex")
+    db.create_indexes([index1])
 
 def extract_descriptions(dept, type):
     """
@@ -286,6 +302,7 @@ def extract_descriptions(dept, type):
                     if 'hour' not in text and 'grading' not in text and text != '':
                         desc += (text + '.')
 
+        # TODO: include units and grading from 'p_tags'
         e = {
             "department": abbrevDept,
             "number": course_text[0],
@@ -302,26 +319,36 @@ def ccle_scrape():
     """
     cycle through quarters in each year for each major
     """
-    global client
+    global client, testing
     mapping = client.Metis.MajorToAcronyms
 
-    # TODO: go through each dept in client.Metis.Departments
-    departments = ["Computer Science"]
-    quarterSymbols = ['F', 'W', 'S', '1']
+    departments = []
+
+    if testing:
+        departments = [{'major': 'Computer Science', 'acronym': 'COM SCI'}]
+    else:
+        with open('major_list.json') as json_file:
+            departments = json.load(json_file)["majors"]
+
+        departments = list(mapping.find({}))
+
+    quarterSymbols = ['W', 'S', '1', 'F']
 
     for dept in departments:
-        data = mapping.find_one({"major": dept})
-        major = data["acronym"]
 
-        # replace spaces with '%20'
-        abbrev = major.replace(' ', '%20')
+        try:
+            major = dept["acronym"]
 
-        # go through each quarter in a range of years
-        for i in range(16,18):
-            for q in quarterSymbols:
-                quarter = str(i) + q
+            # replace spaces with '%20'
+            abbrev = major.replace(' ', '%20')
 
-                ccle_professor_scraper(abbrev, quarter, major)
+            # go through each quarter in a range of years
+            for i in range(16,21):
+                for q in quarterSymbols:
+                    quarter = str(i) + q
+                    ccle_professor_scraper(abbrev, quarter, major)
+        except:
+            print("No acronym for: " + dept)
 
 def ccle_professor_scraper(abbrev, quarter, major):
     """
@@ -339,23 +366,28 @@ def ccle_professor_scraper(abbrev, quarter, major):
 
     db = client.Scrape.ClassesByQuarter
 
-    classes = ccle_professor_parser.get_class_professor_list(page_source)
+    try:
+        classes = ccle_professor_parser.get_class_professor_list(page_source)
 
-    for c in classes:
-        e = {
-            "courseNum": c[0],
-            "professor": c[1],
-            "courseTitle": c[2],
-            "major": major,
-            "muarter": quarter
-        }
+        for c in classes:
+            e = {
+                "courseNum": c[0],
+                "professor": c[1],
+                "courseTitle": c[2],
+                "major": major,
+                "quarter": quarter
+            }
 
-        db.insert_one(e)
+            db.insert_one(e)
+    except:
+        print("CCLE doesn't have data for: " + major + " " + quarter)
 
 # start the driver and return it
-def setup_driver():
+def setup_driver(testing):
     chrome_options = webdriver.ChromeOptions()
-    # chrome_options.add_argument("--headless")
+
+    if not testing:
+        chrome_options.add_argument("--headless")
     chrome_options.add_argument("--start-maximized")
     prefs = {"profile.default_content_setting_values.notifications" : 2}
     chrome_options.add_experimental_option("prefs",prefs)
@@ -375,20 +407,24 @@ def setup_driver():
 
 def main():
 
-    global driver, client
+    global driver, client, testing
 
-    driver = setup_driver()
+    if len(sys.argv) == 2 and sys.argv[1] == 'test':
+        testing = True
+        print("Testing scrapers for Computer Science, not headless mode")
+
+    driver = setup_driver(testing)
     client = pymongo.MongoClient("mongodb+srv://tester:user@metis-eaoki.mongodb.net/test?retryWrites=true&w=majority")
 
     # Scrape the schedule of classes
-    sched_scrape()
+    # sched_scrape()
 
     # Scrape Class Descriptions
     # descriptions_scrape()
     time.sleep(10)
 
     # Scrape Professors
-    # ccle_scrape()
+    ccle_scrape()
     time.sleep(10)
 
     client.close()

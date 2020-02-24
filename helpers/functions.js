@@ -80,7 +80,6 @@ function convertNames(data) {
 
   }
 
-  console.log(classes)
   return classes;
 }
 

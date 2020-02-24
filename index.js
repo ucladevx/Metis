@@ -6,6 +6,7 @@ require('dotenv').config();
 
 // Database init and access functions
 const db = require('./helpers/db.js')
+const temp = require('./helpers/initDB.js')
 
 // Create express app
 var app = express();
@@ -28,6 +29,7 @@ app.get('/', (req,res) => {
 
 // Connect to database, on success start server
 db.initDb(function(err){
+  temp.populateCourses()
   app.listen(process.env.PORT || 3001, () => {
   	console.log("server listening");
   });

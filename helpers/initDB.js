@@ -14,15 +14,18 @@ const acronymsJSON = require("../python/major_acronyms.json");
 async function populateCourses(){
 
 	const dbase = dbHelpers.getDb();
-	const db = dbase.db("Metis");
-	const courseCollection = db.collection("Course");
+	const db = dbase.db("Scrape");
+	const courseCollection = db.collection("Classes");
 
-	for(var major in prereqJSON){
+	// TODO: comment back later, just CS for now
+	// for(var major in prereqJSON){
 
-    	majorClasses = prereqJSON[major];
+    // majorClasses = prereqJSON[major];
+		majorClasses = prereqJSON["Computer Science"];
 
 		for(var classID in majorClasses){
 
+			// TODO: pathways need to have abbreviated department name
 			var pathways = majorClasses[classID];
 			var department = "";
 			var similarClasses = [];
@@ -35,7 +38,7 @@ async function populateCourses(){
 
 				var typePattern = /([0-9]+)/g;
 				var number = typePattern.exec(classID)[1];
-				
+
 				if(parseInt(number) <100 ){
 					type = "lower";
 				}
@@ -43,7 +46,7 @@ async function populateCourses(){
 					type = "upper";
 				else
 					type = "grad";
-				
+
 		    	var similarClasses = []
 		    	var similarType = type;
 		    	if (similarType == "lower" || similarType =="upper")
@@ -79,21 +82,23 @@ async function populateCourses(){
 				similarClasses = [];
 				type = "Error";
 			}
-			var courseEntry = {
-		    		"class_id" : classID,
-		    		"prerequisites": pathways,
-		    		"department": department,
-		    		"professor-term": "placeholder",
-		    		"similar_classes": similarClasses,
-		    		"type": type
-		    	}
-	    	//console.log(courseEntry);
-			//console.log(prereqEntry);
-			
+
+			var dept, classNum;
+
+			for(var i = classID.length; i >= 0; i--){
+
+				if(classID[i] == ' '){
+					dept = classID.substring(0, i);
+					classNum = classID.substring(i+1);
+					break;
+				}
+			}
+
+			// update db
 			try {
 				r = await courseCollection.updateOne(
-					{ "class_id" :  classID },
-			        { $set: {"prerequisites": pathways, "department": department, "professor-term": "placeholder", "similar_classes": similarClasses, "type": type} },
+					{ "department" :  dept, "number": classNum },
+			        { $set: {"prerequisites": pathways, "similar_classes": similarClasses, "type": type} },
 			        { upsert: true }
 			       );
 				if(r["upsertedId"]){
@@ -108,14 +113,10 @@ async function populateCourses(){
 			} catch(e){
 				console.log(e);
 			}
-			
-
-
-
 		}
 	}
-	return null;
-};
+// 	return null;
+// };
 
 
 async function createDepartments(){
@@ -206,8 +207,11 @@ async function createAcronymsMap(){
 	}
 }
 
-dbHelpers.initDb(function(err){
-	createAcronymsMap();
-});
+module.exports = {populateCourses};
+
+// dbHelpers.initDb(function(err){
+// 	// createAcronymsMap();
+// 	populateCourses()
+// });
 
 //createDepartments();
